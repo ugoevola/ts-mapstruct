@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "target": "es2021",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src/",
+    "outDir": "./dist",
+    "incremental": true,
+    "resolveJsonModule": true,
+    "typeRoots": [ "./types", "./node_modules/@types"]
+  },
+  "includes": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "typings"]
+}

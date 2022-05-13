@@ -1,0 +1,28 @@
+{
+  "name": "ts-mapstruct",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ugoevola/ts-mapstruct"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@nestjs/common": "^8.0.6",
+    "class-validator": "^0.13.2",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/lodash": "^4.14.182",
+    "@types/sanitizer": "0.0.28",
+    "rxjs": "^6.5.4"
+  }
+}
