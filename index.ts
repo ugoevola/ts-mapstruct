@@ -1,3 +1,6 @@
 export * from './src/decorators/mappings.decorator'
+export * from './src/decorators/before-mapping.decorator'
+export * from './src/decorators/after-mapping.decorator'
+export * from './src/decorators/mapping-target.decorator'
 export * from './src/models/mapping-options'
 export * from './src/shared/mapping-functions'

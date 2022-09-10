@@ -1,14 +1,21 @@
-import { ValidateIf, IsNotEmpty } from 'class-validator';
+import { IsOptional, IsString } from "class-validator";
+import { RelatedWith } from "../validators/validate-if-undefined.validator";
 
 export class MappingOptions {
-  @IsNotEmpty() target: string;
-  
-  @ValidateIf(o => o.value == undefined && o.expression == undefined)
+  @IsString()
+  target: string;
+
+  @IsString()
+  @IsOptional()
+  @RelatedWith(['value', 'expression'])
   source?: string;
   
-  @ValidateIf(o => o.source == undefined && o.expression == undefined)
+  @IsOptional()
+  @RelatedWith(['source', 'expression'])
   value?: any;
 
-  @ValidateIf(o => o.source == undefined && o.value == undefined)
+  @IsString()
+  @IsOptional()
+  @RelatedWith(['source', 'value'])
   expression?: string
 };
