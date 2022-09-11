@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from "class-validator";
-import { RelatedWith } from "../validators/validate-if-undefined.validator";
+import { RelatedWith } from "../validators/related-with";
 
 export class MappingOptions {
   @IsString()

@@ -292,7 +292,7 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // This will throw a IllegalArgumentNameExceptionMapper because getConcatProperties is a reserved name used for supplied mapping funcions
+  // This will throw an IllegalArgumentNameExceptionMapper because getConcatProperties is a reserved name used for supplied mapping funcions
   // All supplied mapping function name are forbidden for naming the arguments.
   // cf. Supplied Mapping Functions
   @Mappings()
