@@ -1,17 +1,17 @@
-export class ArgumentDescriptor {
-  name: string;
+import { detachUnderscore } from "../shared/utils"
 
-  constructor(name: string) {
+export class ArgumentDescriptor {
+  name: string
+
+  constructor (name: string) {
     this.name = name
   }
 
-  equals(arg: ArgumentDescriptor): boolean {
+  equals (arg: ArgumentDescriptor): boolean {
     return this.nameWithoutFirstUnderscore() === arg.nameWithoutFirstUnderscore()
   }
 
-  nameWithoutFirstUnderscore() {
-    if (this.name.charAt(0) === '_')
-      this.name = this.name.substring(1)
-    return this.name
+  nameWithoutFirstUnderscore (): string {
+    return detachUnderscore(this.name)
   }
 }

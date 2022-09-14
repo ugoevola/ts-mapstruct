@@ -10,8 +10,9 @@
     "outDir": "./dist",
     "incremental": true,
     "resolveJsonModule": true,
-    "typeRoots": [ "./types", "./node_modules/@types"]
+    "typeRoots": [ "./types", "./node_modules/@types"],
+    "allowJs": true
   },
-  "includes": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "typings"]
+  "includes": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "./dist/**/*", "**/*spec.ts", "typings"]
 }

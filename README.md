@@ -61,7 +61,7 @@ export class UserMapper {
   @Mappings(
     { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
     { target: 'cn', source: 'userDto.fname' },
-    { target: 'sn', source: 'userDto.sname' },
+    { target: 'sn', source: 'userDto.lname' },
     { target: 'lastConnexionTime', value: Date.now() },
     { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)' }
   )
@@ -71,7 +71,7 @@ export class UserMapper {
   }
 
   entitiesFromDtos(userDto: UserDto[]): UserEntity[] {
-    return userDto.map(this.entityFromDto);
+    return userDto.map(userDto => this.entityFromDto(userDto));
   }
 
   /*-------------------*\
@@ -117,7 +117,7 @@ export class UserMapper {
   @Mappings(
     { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
     { target: 'cn', source: 'userDto.fname' },
-    { target: 'sn', source: 'userDto.sname' },
+    { target: 'sn', source: 'userDto.lname' },
     { target: 'lastConnexionTime', value: Date.now() }
   )
   entityFromDto(_userDto: UserDto): UserEntity { 
@@ -149,7 +149,7 @@ export class UserMapper {
   // called before entityFromDto
   @BeforeMapping()
   checkBeforeMappingDto(userDto: UserDto): void {
-    if (userDto.fname === undefined || userDto.sname === undefined)
+    if (userDto.fname === undefined || userDto.lname === undefined)
       throw new Error('The commonName and secondName must be defined')
   }
 
@@ -198,7 +198,7 @@ export class UserMapper {
     { target: 'fullName', expression: 'getConcatProperties(user.fn, user.sn)' },
     { target: 'lastConnexionTime', value: Date.now() }
   )
-  entityFromDto(@MappingTarget() user: UserEntity, _userDto: UserDto): UserEntity {
+  entityFromDto(@MappingTarget() _user: UserEntity, _userDto: UserDto): UserEntity {
     return new UserEntity;
   }
 
@@ -232,7 +232,7 @@ export class UserMapper {
 
   // called for both entityFromDto AND entityFromArgs
   @AfterMapping()
-  overrideUser(@MappingTarget(User) user: UserEntity): void {
+  overrideUser(@MappingTarget(UserEntity) user: UserEntity): void {
     user.isMajor = true;
   }
 
@@ -295,7 +295,10 @@ export class UserMapper {
   // This will throw an IllegalArgumentNameExceptionMapper because getConcatProperties is a reserved name used for supplied mapping funcions
   // All supplied mapping function name are forbidden for naming the arguments.
   // cf. Supplied Mapping Functions
-  @Mappings()
+  // this exception is thrown as soon as there is an expression in one provided MappingOptions
+  @Mappings(
+    { target: 'cn', expression: 'getConcatProperties(getConcatProperties.fname)' }
+  )
   entityFromDto(getConcatProperties: UserDto): UserEntity {
     return new UserEntity;
   }
@@ -342,7 +345,7 @@ export class UserMapper {
   
   // this will throw an InvalidTargetExceptionMapper because unknown does not exist on UserEntity
   @Mappings(
-    { target: 'unknown', source: 'userDto.unknownProperty' },
+    { target: 'unknown', source: 'userDto.fname' },
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;
