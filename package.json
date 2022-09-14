@@ -1,6 +1,6 @@
 {
   "name": "ts-mapstruct",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -50,7 +50,9 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverage": true,
-    "collectCoverageFrom": ["./src/**"],
+    "collectCoverageFrom": [
+      "./src/**"
+    ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "coverageThreshold": {
