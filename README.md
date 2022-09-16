@@ -173,7 +173,7 @@ export class UserMapper {
 
   // allways called
   @AfterMapping()
-  logAfterMapping() {
+  logAfterMapping(): void {
     console.log('Mapping is finished.');
   }
   

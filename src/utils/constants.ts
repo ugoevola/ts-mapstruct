@@ -1,3 +1,4 @@
+export const EMPTY_STRING = ''
 export const BEFORE_MAPPING = 'BEFORE_MAPPING'
 export const AFTER_MAPPING = 'AFTER_MAPPING'
 export const MAPPING_TARGET = 'MAPPING_TARGET'
