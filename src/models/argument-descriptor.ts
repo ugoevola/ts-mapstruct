@@ -1,13 +1,24 @@
-import { detachUnderscore } from "../shared/utils"
+import { detachUnderscore, sameType } from "../utils/utils"
 
 export class ArgumentDescriptor {
   name: string
+  value: any
+  isMappingTarget: boolean
+  type: any
 
-  constructor (name: string) {
+  constructor (name: string, value: any, isMappingTarget: boolean, type?: any) {
     this.name = name
+    this.value = value
+    this.isMappingTarget = isMappingTarget
+    this.type = type
   }
 
-  equals (arg: ArgumentDescriptor): boolean {
+  same (arg: ArgumentDescriptor): boolean {
+    return this.nameWithoutFirstUnderscore() === arg.nameWithoutFirstUnderscore() &&
+      sameType(this.value, arg.value)
+  }
+
+  sameNameAs (arg: ArgumentDescriptor): boolean {
     return this.nameWithoutFirstUnderscore() === arg.nameWithoutFirstUnderscore()
   }
 

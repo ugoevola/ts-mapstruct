@@ -1,15 +1,19 @@
-import { getArgumentsDescriptors } from '../shared/utils'
+import { isNil } from 'lodash'
+import { MAPPING_TARGET } from '../utils/constants'
+import { getArgumentNames } from '../utils/utils'
 import { ArgumentDescriptor } from './argument-descriptor'
 
 export class FunctionDescriptor {
   name: string
-  argumentsDescriptors: ArgumentDescriptor[]
-  argumentsValues: any[]
+  args: ArgumentDescriptor[]
   fn: Function
 
-  constructor (name: string, fn: Function) {
+  constructor (name: string, fn: Function, mapperClass: any) {
     this.name = name
     this.fn = fn
-    this.argumentsDescriptors = getArgumentsDescriptors(fn.toString())
+    this.args = getArgumentNames(fn.toString()).map(argName => {
+      const isMappingTarget = !isNil(Reflect.getOwnMetadata(MAPPING_TARGET, mapperClass, name))
+      return new ArgumentDescriptor(argName, undefined, isMappingTarget)
+    })
   }
 }

@@ -1,4 +1,7 @@
-import { Mappings, BeforeMapping, AfterMapping, MappingTarget } from "../..";
+import { MappingTarget } from "../../src/decorators/mapping-target.decorator";
+import { AfterMapping } from "../../src/decorators/after-mapping.decorator";
+import { BeforeMapping } from "../../src/decorators/before-mapping.decorator";
+import { Mappings } from "../../src/decorators/mappings.decorator";
 import { Friend, UserDto } from "../models/user.dto";
 import { UserEntity } from "../models/user.entity";
 
