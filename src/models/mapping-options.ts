@@ -18,4 +18,4 @@ export class MappingOptions {
   @IsOptional()
   @RelatedWith(['source', 'value'])
     expression?: string
-};
+}

@@ -173,7 +173,7 @@ export class UserMapper {
 
   // allways called
   @AfterMapping()
-  logAfterMapping() {
+  logAfterMapping(): void {
     console.log('Mapping is finished.');
   }
   
@@ -301,6 +301,21 @@ export class UserMapper {
   )
   entityFromDto(getConcatProperties: UserDto): UserEntity {
     return new UserEntity;
+  }
+}
+```
+
+**InvalidMappingTargetExceptionMapper**
+
+```ts
+Injectable()
+export class UserMapper {
+  
+  // this will throw an InvalidMappingTargetExceptionMapper because
+  // the provided @MappingTarget object does not have the type of the returned mapping function
+  @Mappings()
+  invalidMappingTargetExceptionMapper (@MappingTarget() _userDto: UserDto): UserEntity {
+    return new UserEntity()
   }
 }
 ```
