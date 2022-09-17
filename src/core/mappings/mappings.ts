@@ -1,10 +1,11 @@
-import { ArgumentDescriptor } from "models/argument-descriptor"
-import { MappingOptions } from "../../.."
-import { checkForSurroudingMapping } from "../surrounding-mapping/check-for-surrounding-mapping"
-import { AFTER_MAPPING, BEFORE_MAPPING } from "../../utils/constants"
-import { control, getSourceArguments, retrieveMappingTarget } from "../../utils/utils"
-import { mapProperty } from "./mapping-from-options"
-import { mapImplicitProperties } from "./mapping-for-implicit"
+import { ArgumentDescriptor } from 'models/argument-descriptor'
+import { MappingOptions } from '../../..'
+import { checkForSurroudingMapping } from '../surrounding-mapping/check-for-surrounding-mapping'
+import { AFTER_MAPPING, BEFORE_MAPPING } from '../../utils/constants'
+import { control, getSourceArguments, retrieveMappingTarget } from '../../utils/utils'
+import { mapProperty } from './mapping-from-options'
+import { mapImplicitProperties } from './mapping-for-implicit'
+import '../../mapping-functions/index'
 
 export const mapping = (
   mapperClass: any,
@@ -13,7 +14,7 @@ export const mapping = (
   sourceValues: any[],
   mappingOptions: MappingOptions[],
   targetedObject: any
-) => {
+): any => {
   control(...mappingOptions)
   const sourceArgs: ArgumentDescriptor[] = getSourceArguments(mapperClass, mappingMethodName, sourceNames, sourceValues)
   targetedObject = retrieveMappingTarget(sourceArgs, targetedObject)

@@ -1,4 +1,5 @@
 import { InvalidMappingOptionsExceptionMapper } from '../exceptions/invalid-mapping-options.exception'
+import { InvalidMappingTargetExceptionMapper } from '../exceptions/invalid-mapping-target.exception'
 import { IllegalArgumentNameExceptionMapper } from '../exceptions/illegal-argument-name.exception'
 import { InvalidSourceExceptionMapper } from '../exceptions/invalid-source.exception'
 import { InvalidTargetExceptionMapper } from '../exceptions/invalid-target.exception'
@@ -24,7 +25,6 @@ export const getAllFunctionNames = (expression: string): string[] => {
   return [...expression.matchAll(regex)].map(matches => matches[2])
 }
 
-
 export const setGlobalVariable = (key: string, value: any): void => {
   const k = detachUnderscore(key)
   if (global.suppliedMappingFunctions.indexOf(k) > -1) { throw new IllegalArgumentNameExceptionMapper(k) }
@@ -32,28 +32,26 @@ export const setGlobalVariable = (key: string, value: any): void => {
 }
 
 export const sameType = (object1: any, object2: any): boolean => {
-  return typeof object1 === typeof object2 && (typeof object1 !== 'object' || object1.constructor === object2.constructor)
+  return typeof object1 === typeof object2 && (typeof object1 !== 'object' || Object.create(object1).constructor === Object.create(object2).constructor)
 }
 
 export const detachUnderscore = (key: string): string => {
-  return (key?.charAt(0) === '_') ? key.substring(1) : key;
+  return (key?.charAt(0) === '_') ? key.substring(1) : key
 }
-
-// retrieve sources
 
 export const getArgumentNames = (fn: string): string[] => {
   const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg
   const ARGUMENT_NAMES = /([^\s,]+)/g
   const fnStr = fn.replace(STRIP_COMMENTS, '')
-  let result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES)
-  return result === null ? [] : result;
+  const result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES)
+  return result === null ? [] : result
 }
 export const getSourceArguments = (
   mapperClass: any,
   mappingMethodName: string,
   sourceNames: string[],
   sourceValues: any[]
-): Array<ArgumentDescriptor> => {
+): ArgumentDescriptor[] => {
   return sourceValues.map((sourceValue: any, index: number) => {
     const mappingTargetIndex = Reflect.getOwnMetadata(MAPPING_TARGET, mapperClass, mappingMethodName)
     const isMappingTarget = !isNil(mappingTargetIndex) && index === mappingTargetIndex
@@ -62,25 +60,19 @@ export const getSourceArguments = (
   })
 }
 
-// retieve MappingTarget
-
 export const retrieveMappingTarget = (sourceArgs: ArgumentDescriptor[], targetedObject: any): any => {
   const sourceArg = sourceArgs.find(sourceArg => sourceArg.isMappingTarget)
   if (isNil(sourceArg)) return targetedObject
-  // TODO: renvoyer une exception dans le cas où le mappingTarget nest pas du bon type
-  if (!sameType(sourceArg, targetedObject)) throw new Error()
-  return instanciate(targetedObject, sourceArg)
+  if (!sameType(sourceArg.value, targetedObject)) throw new InvalidMappingTargetExceptionMapper()
+  return instanciate(targetedObject, sourceArg.value)
 }
 
-// lié à class-tranformer
-
 export const instanciate = (cls: any, plain: any = {}): any => {
-  const options = {
+  const options: ClassTransformOptions = {
     excludeExtraneousValues: true,
-    enableImplicitConversion: true,
-    strategy: 'exposeAll'
-  } as ClassTransformOptions
-  return plainToClass(cls.constructor as ClassConstructor<any>, plain, options);
+    enableImplicitConversion: true
+  }
+  return plainToClass(cls.constructor as ClassConstructor<any>, plain, options)
 }
 
 export const control = (...options: MappingOptions[]): void => {

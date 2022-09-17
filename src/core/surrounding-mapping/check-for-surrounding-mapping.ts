@@ -19,11 +19,11 @@ export const checkForSurroudingMapping = (
 const checkForInvocation = (
   surroundingMappingType: string,
   supplierArgs: ArgumentDescriptor[],
-  sourceArgsDescriptors: ArgumentDescriptor[],
+  sourceArgs: ArgumentDescriptor[],
   targetedObject: any
 ): boolean => {
-  if (surroundingMappingType === BEFORE_MAPPING) return checkForInvocationForBefore(supplierArgs, sourceArgsDescriptors)
-  if (surroundingMappingType === AFTER_MAPPING) return checkForInvocationForAfter(supplierArgs, sourceArgsDescriptors, targetedObject)
+  if (surroundingMappingType === BEFORE_MAPPING) return checkForInvocationForBefore(supplierArgs, sourceArgs)
+  if (surroundingMappingType === AFTER_MAPPING) return checkForInvocationForAfter(supplierArgs, sourceArgs, targetedObject)
   return false
 }
 
@@ -32,26 +32,27 @@ const checkForInvocationForBefore = (
   sourceArgs: ArgumentDescriptor[]
 ): boolean => {
   return supplierArgs.filter((supplierArg: ArgumentDescriptor) => !(
-      !supplierArg.isMappingTarget && sourceArgs.some(sourceArg => sourceArg.sameNameAs(supplierArg)) ||
-      sourceArgs.find(sourceArg => sourceArg.sameNameAs(supplierArg))?.isMappingTarget ))
-      .length === 0
+    !supplierArg.isMappingTarget && sourceArgs.some(sourceArg => sourceArg.sameNameAs(supplierArg)) ||
+    sourceArgs.find(sourceArg => sourceArg.sameNameAs(supplierArg))?.isMappingTarget))
+    .length === 0
 }
 
 const checkForInvocationForAfter = (
   supplierArgs: ArgumentDescriptor[],
-  sourceArgsDescriptors: ArgumentDescriptor[],
+  sourceArgs: ArgumentDescriptor[],
   targetedObject: any
 ): boolean => {
-  return supplierArgs.filter((supplierArg: ArgumentDescriptor) => !(
-      !supplierArg.isMappingTarget && sourceArgsDescriptors.some(arg => arg.sameNameAs(supplierArg)) ||
-      supplierArg.isMappingTarget && sameType(supplierArg.type, targetedObject)))
-      .length === 0
+  const result = supplierArgs.filter((supplierArg: ArgumentDescriptor) => !(
+    !supplierArg.isMappingTarget && sourceArgs.some(arg => arg.sameNameAs(supplierArg)) ||
+    supplierArg.isMappingTarget && sameType(supplierArg.type.prototype, targetedObject)))
+    .length === 0
+  return result
 }
 
 const computeArgumentsValue = (
   supplier: FunctionDescriptor,
   sourceArgs: ArgumentDescriptor[],
-  targetedObject: any,
+  targetedObject: any
 ): FunctionDescriptor => {
   supplier.args.forEach((supplierArg: ArgumentDescriptor) => {
     if (!supplierArg.isMappingTarget) {

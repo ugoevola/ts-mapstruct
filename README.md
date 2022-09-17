@@ -305,6 +305,21 @@ export class UserMapper {
 }
 ```
 
+**InvalidMappingTargetExceptionMapper**
+
+```ts
+Injectable()
+export class UserMapper {
+  
+  // this will throw an InvalidMappingTargetExceptionMapper because
+  // the provided @MappingTarget object does not have the type of the returned mapping function
+  @Mappings()
+  invalidMappingTargetExceptionMapper (@MappingTarget() _userDto: UserDto): UserEntity {
+    return new UserEntity()
+  }
+}
+```
+
 **InvalidMappingOptionsExceptionMapper**
 
 ```ts

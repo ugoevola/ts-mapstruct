@@ -8,7 +8,7 @@ export const Mappings = (...options: MappingOptions[]) => (
   descriptor: PropertyDescriptor
 ) => {
   const sourceNames = getArgumentNames(descriptor.value.toString())
-  let targetedObject = instanciate(descriptor.value.call())
+  const targetedObject = instanciate(descriptor.value.call())
   descriptor.value = (...sourceValues: any[]): any => {
     return mapping(mapperClass, mappingMethodName, sourceNames, sourceValues, options, targetedObject)
   }

@@ -1,10 +1,9 @@
-import { BadExpressionExceptionMapper } from "../../exceptions/bad-expression.exception"
-import { InvalidSourceExceptionMapper } from "../../exceptions/invalid-source.exception"
-import { get, getAllFunctionNames, set, setGlobalVariable } from "../../utils/utils"
-import { MappingOptions } from "../../models/mapping-options"
-import { isNil } from "lodash"
-import { ArgumentDescriptor } from "models/argument-descriptor"
-
+import { BadExpressionExceptionMapper } from '../../exceptions/bad-expression.exception'
+import { InvalidSourceExceptionMapper } from '../../exceptions/invalid-source.exception'
+import { get, getAllFunctionNames, set, setGlobalVariable } from '../../utils/utils'
+import { MappingOptions } from '../../models/mapping-options'
+import { isNil } from 'lodash'
+import { ArgumentDescriptor } from 'models/argument-descriptor'
 
 export const mapProperty = (
   mapperClass: any,
@@ -30,10 +29,10 @@ const valueFromSource = (
   options: MappingOptions
 ): any => {
   const [sourceName, sourceProperties] = options.source.split(/\.(.*)/s)
-  const sourceArg = sourceArgs.find((sourceArg: ArgumentDescriptor) => sourceArg.name === sourceName)
-  if (!sourceArg)
+  if (!sourceArgs.some((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName))) {
     throw new InvalidSourceExceptionMapper(sourceName)
-  const sourceValue = sourceArg.value
+  }
+  const sourceValue = sourceArgs.find((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName)).value
   return isNil(sourceProperties) ? sourceValue : sourceProperties.split('.').reduce((pre, value) => get(pre, value), sourceValue)
 }
 
@@ -66,6 +65,6 @@ const cleanGlobalsVariables = (
   sourceArgs: ArgumentDescriptor[],
   functionNames: string[]
 ): void => {
-  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => global[sourceArg.name] = undefined)
+  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => { global[sourceArg.name] = undefined })
   functionNames.forEach(key => { if (global.suppliedMappingFunctions.indexOf(key) === -1) setGlobalVariable(key, undefined) })
 }

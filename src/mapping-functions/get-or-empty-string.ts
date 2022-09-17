@@ -1,5 +1,5 @@
 export const getOrEmptyString = (value: any): any | string => {
-  return value ?? '';
-};
+  return value ?? ''
+}
 
 global.getOrEmptyString = getOrEmptyString
