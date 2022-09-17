@@ -4,7 +4,7 @@ import { isNil } from 'lodash'
 export const getConcatProperties = (...properties: [...any, string?]): string => {
   const props = properties.slice()
   const lastProperty = props[props.length - 1]
-  let separator: any;
+  let separator: any
   if (isNil(global[lastProperty])) {
     separator = lastProperty
     props.pop()

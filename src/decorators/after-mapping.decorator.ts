@@ -1,4 +1,4 @@
-import { AFTER_MAPPING, VALUE } from "../utils/constants"
+import { AFTER_MAPPING, VALUE } from '../utils/constants'
 
 export const AfterMapping = () => (
   mapperClass: any,

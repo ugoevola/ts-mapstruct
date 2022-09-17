@@ -1,4 +1,4 @@
-import { BEFORE_MAPPING, VALUE } from "../utils/constants"
+import { BEFORE_MAPPING, VALUE } from '../utils/constants'
 
 export const BeforeMapping = () => (
   mapperClass: any,
