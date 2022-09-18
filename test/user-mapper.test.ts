@@ -1,6 +1,5 @@
 import { BadExpressionExceptionMapper } from '../src/exceptions/bad-expression.exception'
 import { IllegalArgumentNameExceptionMapper } from '../src/exceptions/illegal-argument-name.exception'
-import { InvalidMappingOptionsExceptionMapper } from '../src/exceptions/invalid-mapping-options.exception'
 import { InvalidMappingTargetExceptionMapper } from '../src/exceptions/invalid-mapping-target.exception'
 import { InvalidSourceExceptionMapper } from '../src/exceptions/invalid-source.exception'
 import { InvalidTargetExceptionMapper } from '../src/exceptions/invalid-target.exception'
@@ -8,7 +7,7 @@ import { UserMapper } from './mapper/user.mapper'
 import { Friend, GenderEnum, UserDto } from './models/user.dto'
 import { UserEntity } from './models/user.entity'
 
-describe('MappingTest', () => {
+describe('UserMapperTest', () => {
   let userMapper: UserMapper
   let userDto: UserDto
   let userEntity: UserEntity
@@ -97,11 +96,6 @@ describe('MappingTest', () => {
   it('test IllegalArgumentNameExceptionMapper', () => {
     expect(() => userMapper.illegalArgumentNameExceptionMapper(userDto))
       .toThrow(IllegalArgumentNameExceptionMapper)
-  })
-
-  it('test InvalidMappingOptionsExceptionMapper', () => {
-    expect(() => userMapper.invalidMappingOptionsExceptionMapper(userDto))
-      .toThrow(InvalidMappingOptionsExceptionMapper)
   })
 
   it('test InvalidSourceExceptionMapper', () => {

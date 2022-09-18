@@ -1,22 +1,41 @@
-import { BadExpressionExceptionMapper } from '../../exceptions/bad-expression.exception'
-import { InvalidSourceExceptionMapper } from '../../exceptions/invalid-source.exception'
-import { get, getAllFunctionNames, set, setGlobalVariable } from '../../utils/utils'
-import { MappingOptions } from '../../models/mapping-options'
+import { BadExpressionExceptionMapper } from '../exceptions/bad-expression.exception'
+import { InvalidSourceExceptionMapper } from '../exceptions/invalid-source.exception'
+import { get, getAllFunctionNames, set, setGlobalVariable } from '../utils/utils'
+import { MappingOptions } from '../models/mapping-options'
 import { isNil } from 'lodash'
 import { ArgumentDescriptor } from 'models/argument-descriptor'
 
-export const mapProperty = (
-  mapperClass: any,
-  targetedObject: any,
+export const getOptionsMapping = (
+  optionsList: MappingOptions[]
+): Array<[MappingOptions, Function]> => {
+  return optionsList.map((options: MappingOptions) => {
+    if (!isNil(options.value)) return [options, fnValue]
+    if (!isNil(options.source)) return [options, fnSource]
+    if (!isNil(options.expression)) return [options, fnExpression]
+    return (null)
+  })
+}
+
+const fnValue = <T> (
+  targetedObject: T,
+  _mapperClass: any,
+  _sourceArgs: ArgumentDescriptor[],
+  options: MappingOptions
+): void => set(targetedObject, options.target, valueFromValue(options))
+
+const fnSource = <T> (
+  targetedObject: T,
+  _mapperClass: any,
   sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
-): void => {
-  let value = null
-  if (!isNil(options.value)) { value = valueFromValue(options) }
-  if (!isNil(options.source)) { value = valueFromSource(sourceArgs, options) }
-  if (!isNil(options.expression)) { value = valueFromExpression(mapperClass, sourceArgs, options) }
-  set(targetedObject, options.target, value)
-}
+): void => set(targetedObject, options.target, valueFromSource(sourceArgs, options))
+
+const fnExpression = <T> (
+  targetedObject: T,
+  mapperClass: any,
+  sourceArgs: ArgumentDescriptor[],
+  options: MappingOptions
+): void => set(targetedObject, options.target, valueFromExpression(mapperClass, sourceArgs, options))
 
 const valueFromValue = (
   options: MappingOptions
