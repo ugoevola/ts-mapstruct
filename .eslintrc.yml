@@ -12,3 +12,4 @@ rules:
   no-mixed-operators: off
   "@typescript-eslint/strict-boolean-expressions": off
   "@typescript-eslint/restrict-plus-operands": off
+  curly: off

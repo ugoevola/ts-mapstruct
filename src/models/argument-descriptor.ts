@@ -6,9 +6,8 @@ export class ArgumentDescriptor {
   isMappingTarget: boolean
   type: any
 
-  constructor (name: string, value: any, isMappingTarget: boolean, type: any) {
+  constructor (name: string, isMappingTarget: boolean, type: any) {
     this.name = name
-    this.value = value
     this.isMappingTarget = isMappingTarget
     this.type = type
   }

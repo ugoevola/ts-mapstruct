@@ -10,7 +10,7 @@ import { ClassConstructor, ClassTransformOptions, plainToClass } from 'class-tra
 import { validateSync } from 'class-validator'
 import { isNil } from 'lodash'
 
-export const set = (object: object, propertyName: string, value: any): any => {
+export const set = <T> (object: T, propertyName: string, value: any): any => {
   if (isNil(object) || !(propertyName in object)) { throw new InvalidTargetExceptionMapper(propertyName) }
   object[propertyName] = value
 }
@@ -32,7 +32,8 @@ export const setGlobalVariable = (key: string, value: any): void => {
 }
 
 export const sameType = (object1: any, object2: any): boolean => {
-  return typeof object1 === typeof object2 && (typeof object1 !== 'object' || Object.create(object1).constructor === Object.create(object2).constructor)
+  return typeof object1 === typeof object2 &&
+    (typeof object1 !== 'object' || Object.create(object1).constructor === Object.create(object2).constructor)
 }
 
 export const detachUnderscore = (key: string): string => {
@@ -49,35 +50,35 @@ export const getArgumentNames = (fn: string): string[] => {
 export const getSourceArguments = (
   mapperClass: any,
   mappingMethodName: string,
-  sourceNames: string[],
-  sourceValues: any[]
+  sourceNames: string[]
 ): ArgumentDescriptor[] => {
-  return sourceValues.map((sourceValue: any, index: number) => {
+  return sourceNames.map((sourceName: any, index: number) => {
     const mappingTargetIndex = Reflect.getOwnMetadata(MAPPING_TARGET, mapperClass, mappingMethodName)
     const isMappingTarget = !isNil(mappingTargetIndex) && index === mappingTargetIndex
     const type = isMappingTarget ? Reflect.getOwnMetadata(MAPPING_TARGET_TYPE, mapperClass, mappingMethodName) : undefined
-    return new ArgumentDescriptor(sourceNames[index], sourceValue, isMappingTarget, type)
+    return new ArgumentDescriptor(sourceName, isMappingTarget, type)
   })
 }
 
-export const retrieveMappingTarget = (sourceArgs: ArgumentDescriptor[], targetedObject: any): any => {
+export const retrieveMappingTarget = <T> (sourceArgs: ArgumentDescriptor[], targetedObject: T): T => {
   const sourceArg = sourceArgs.find(sourceArg => sourceArg.isMappingTarget)
   if (isNil(sourceArg)) return targetedObject
   if (!sameType(sourceArg.value, targetedObject)) throw new InvalidMappingTargetExceptionMapper()
   return instanciate(targetedObject, sourceArg.value)
 }
 
-export const instanciate = (cls: any, plain: any = {}): any => {
+export const instanciate = <T> (cls: T, plain: any = {}): T => {
   const options: ClassTransformOptions = {
     excludeExtraneousValues: true,
     enableImplicitConversion: true
   }
-  return plainToClass(cls.constructor as ClassConstructor<any>, plain, options)
+  return plainToClass(cls.constructor as ClassConstructor<T>, plain, options)
 }
 
-export const control = (...options: MappingOptions[]): void => {
+export const control = (mapperClass: any, mappingMethodName: string, ...options: MappingOptions[]): void => {
   options.forEach(option => {
     option = plainToClass(MappingOptions, option)
-    if (validateSync(option, { forbidUnknownValues: true }).length > 0) { throw new InvalidMappingOptionsExceptionMapper() }
+    if (validateSync(option, { forbidUnknownValues: true }).length > 0)
+      throw new InvalidMappingOptionsExceptionMapper(mapperClass.name, mappingMethodName)
   })
 }

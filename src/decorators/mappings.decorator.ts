@@ -1,15 +1,14 @@
 import { MappingOptions } from '../models/mapping-options'
-import { getArgumentNames, instanciate } from '../utils/utils'
-import { mapping } from '../core/mappings/mappings'
+import { MAPPINGS_METHOD } from '../utils/constants'
+import { MappingWrap } from '../models/mappings-wrap'
 
-export const Mappings = (...options: MappingOptions[]) => (
+export const Mappings = (...mappingOptions: MappingOptions[]) => (
   mapperClass: any,
   mappingMethodName: string,
   descriptor: PropertyDescriptor
 ) => {
-  const sourceNames = getArgumentNames(descriptor.value.toString())
-  const targetedObject = instanciate(descriptor.value.call())
-  descriptor.value = (...sourceValues: any[]): any => {
-    return mapping(mapperClass, mappingMethodName, sourceNames, sourceValues, options, targetedObject)
-  }
+  const existingMappingMethods = Reflect.getOwnMetadata(MAPPINGS_METHOD, mapperClass.constructor) || []
+  const mappingWrap: MappingWrap = { mapperClass, mappingMethodName, descriptor, mappingOptions }
+  existingMappingMethods.push(mappingWrap)
+  Reflect.defineMetadata(MAPPINGS_METHOD, existingMappingMethods, mapperClass.constructor)
 }
