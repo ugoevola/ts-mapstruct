@@ -5,7 +5,9 @@ import { BeforeMapping } from '../../src/decorators/before-mapping.decorator'
 import { Mappings } from '../../src/decorators/mappings.decorator'
 import { Friend, UserDto } from '../models/user.dto'
 import { UserEntity } from '../models/user.entity'
+import { Mapper } from '../../src/decorators/mapper.decorator'
 
+@Mapper()
 export class UserMapper {
   /* -------------------*\
      UserDto -> User
@@ -116,13 +118,6 @@ export class UserMapper {
     { target: 'cn', expression: 'getConcatProperties(getConcatProperties.fname)' }
   )
   illegalArgumentNameExceptionMapper (getConcatProperties: UserDto): UserEntity {
-    return new UserEntity()
-  }
-
-  @Mappings(
-    { target: 'cn', value: 'Ugo', source: 'userDto.fname' }
-  )
-  invalidMappingOptionsExceptionMapper (_userDto: UserDto): UserEntity {
     return new UserEntity()
   }
 
