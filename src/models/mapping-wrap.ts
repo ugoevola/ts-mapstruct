@@ -1,6 +1,6 @@
 import { MappingOptions } from './mapping-options'
 
-export class MappingWrap {
+export type MappingWrap = {
   mapperClass: any
   mappingMethodName: string
   descriptor: PropertyDescriptor
