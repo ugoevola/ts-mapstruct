@@ -1,4 +1,4 @@
-import { getArgumentNames, instanciate, getSourceArguments, control, retrieveMappingTarget } from '../utils/utils'
+import { getArgumentNames, instanciate, getSourceArguments, control, retrieveMappingTarget, clean } from '../utils/utils'
 import { SupplierDescriptor } from '../models/supplier-descriptor'
 import { getOptionsMapping } from './get-options-mappings'
 import { ArgumentDescriptor } from '../models/argument-descriptor'
@@ -14,20 +14,20 @@ export const mapping = <T> (
   mappingOptions: MappingOptions[]
 ): void => {
   control(mapperClass, mappingMethodName, ...mappingOptions)
-  let targetedObject: T = instanciate(descriptor.value.call())
+  const targetedType: T = descriptor.value.call()
   const sourceNames: string[] = getArgumentNames(descriptor.value.toString())
   const sourceArgs: ArgumentDescriptor[] = getSourceArguments(mapperClass, mappingMethodName, sourceNames)
   const beforeSuppliers: SupplierDescriptor[] = getBeforeSuppliers(mapperClass, sourceArgs)
-  const afterSuppliers: SupplierDescriptor[] = getAfterSuppliers(mapperClass, sourceArgs, targetedObject)
+  const afterSuppliers: SupplierDescriptor[] = getAfterSuppliers(mapperClass, sourceArgs, targetedType)
   const optionsMappingFunctions: Array<[MappingOptions, Function]> = getOptionsMapping(mappingOptions)
   mapperClass.constructor.prototype[mappingMethodName] = (...sourceValues: any[]): T => {
     sourceArgs.forEach((arg, index) => { arg.value = sourceValues[index] })
-    targetedObject = retrieveMappingTarget(sourceArgs, targetedObject)
+    const targetedObject = retrieveMappingTarget(sourceArgs, targetedType) || instanciate(targetedType)
     beforeSuppliers.forEach(supplier => {
       supplier.computeArgumentsValue(sourceArgs, targetedObject)
       supplier.fn(...supplier.args.map(arg => arg.value))
     })
-    mapImplicitProperties(sourceValues, targetedObject)
+    mapImplicitProperties(sourceArgs, targetedObject)
     optionsMappingFunctions.forEach(([options, fn]) => {
       fn(targetedObject, mapperClass, sourceArgs, options)
     })
@@ -35,6 +35,7 @@ export const mapping = <T> (
       supplier.computeArgumentsValue(sourceArgs, targetedObject)
       supplier.fn(...supplier.args.map(arg => arg.value))
     })
+    clean(targetedObject)
     return targetedObject
   }
 }

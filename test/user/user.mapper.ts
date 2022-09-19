@@ -3,8 +3,8 @@ import { MappingTarget } from '../../src/decorators/mapping-target.decorator'
 import { AfterMapping } from '../../src/decorators/after-mapping.decorator'
 import { BeforeMapping } from '../../src/decorators/before-mapping.decorator'
 import { Mappings } from '../../src/decorators/mappings.decorator'
-import { Friend, UserDto } from '../models/user.dto'
-import { UserEntity } from '../models/user.entity'
+import { Friend, UserDto } from '../user/user.dto'
+import { UserEntity } from './user.entity'
 import { Mapper } from '../../src/decorators/mapper.decorator'
 
 @Mapper()
@@ -30,7 +30,7 @@ export class UserMapper {
   }
 
   @Mappings(
-    { target: 'cn', source: 'commonName' },
+    { target: 'cn', expression: 'getOrEmptyString(commonName)' },
     { target: 'sn', source: 'secondName' },
     { target: 'bestFriend', source: 'bestFriend' }
   )
@@ -73,8 +73,8 @@ export class UserMapper {
 
   // called before entityFromArgs
   @BeforeMapping()
-  checkBeforeMappingArgs (commonName: string, secondName: string): void {
-    if (commonName === undefined || secondName === undefined)
+  checkBeforeMappingArgs (secondName: string): void {
+    if (secondName === undefined)
       throw new Error('2: The commonName and secondName must be defined')
   }
 
@@ -125,6 +125,13 @@ export class UserMapper {
     { target: 'cn', source: 'userDto.unknownProperty' }
   )
   invalidSourceExceptionMapper (_userDto: UserDto): UserEntity {
+    return new UserEntity()
+  }
+
+  @Mappings(
+    { target: 'cn', source: 'unknownProperty' }
+  )
+  invalidSourceExceptionMapper2 (_userDto: UserDto): UserEntity {
     return new UserEntity()
   }
 

@@ -1,11 +1,11 @@
-import { BadExpressionExceptionMapper } from '../src/exceptions/bad-expression.exception'
-import { IllegalArgumentNameExceptionMapper } from '../src/exceptions/illegal-argument-name.exception'
-import { InvalidMappingTargetExceptionMapper } from '../src/exceptions/invalid-mapping-target.exception'
-import { InvalidSourceExceptionMapper } from '../src/exceptions/invalid-source.exception'
-import { InvalidTargetExceptionMapper } from '../src/exceptions/invalid-target.exception'
-import { UserMapper } from './mapper/user.mapper'
-import { Friend, GenderEnum, UserDto } from './models/user.dto'
-import { UserEntity } from './models/user.entity'
+import { BadExpressionExceptionMapper } from '../../src/exceptions/bad-expression.exception'
+import { IllegalArgumentNameExceptionMapper } from '../../src/exceptions/illegal-argument-name.exception'
+import { InvalidMappingTargetExceptionMapper } from '../../src/exceptions/invalid-mapping-target.exception'
+import { InvalidSourceExceptionMapper } from '../../src/exceptions/invalid-source.exception'
+import { InvalidTargetExceptionMapper } from '../../src/exceptions/invalid-target.exception'
+import { UserMapper } from './user.mapper'
+import { Friend, GenderEnum, UserDto } from './user.dto'
+import { UserEntity } from './user.entity'
 
 describe('UserMapperTest', () => {
   let userMapper: UserMapper
@@ -58,6 +58,10 @@ describe('UserMapperTest', () => {
     userEntity.isMajor = true
     expect(userMapper.entityFromArgs('Ugo', 'Evola', brian))
       .toEqual(userEntity)
+    userEntity.cn = ''
+    delete userEntity.sn
+    expect(userMapper.entityFromArgs(undefined, 'Evola', brian))
+      .toEqual(userEntity)
   })
 
   it('test BeforeMapping', () => {
@@ -65,7 +69,7 @@ describe('UserMapperTest', () => {
     delete userDtoCopy.fname
     expect(() => userMapper.entityFromDto(userDtoCopy))
       .toThrow('1: The commonName and secondName must be defined')
-    expect(() => userMapper.entityFromArgs(undefined, 'Evola', natacha))
+    expect(() => userMapper.entityFromArgs('Ugo', undefined, natacha))
       .toThrow('2: The commonName and secondName must be defined')
   })
 
@@ -76,15 +80,12 @@ describe('UserMapperTest', () => {
   })
 
   it('test MappingTarget Mappings', () => {
-    const userEntityCopy = new UserEntity()
-    userEntityCopy.cn = 'Ugo'
-    userEntityCopy.sn = 'Evola'
-    const userEntityResult = new UserEntity()
-    userEntityResult.cn = 'Ugo'
-    userEntityResult.sn = 'Evola'
-    userEntityResult.fullName = 'Ugo Evola'
-    userEntityResult.lastConnexionTime = 1663180781624
-    expect(userMapper.entityFromEntityAndDto(userEntityCopy, userDto))
+    const userEntitySource = new UserEntity()
+    userEntitySource.cn = 'Ugo'
+    userEntitySource.sn = 'Evola'
+    const userEntityResult = {... userEntity}
+    delete userEntityResult.bestFriend
+    expect(userMapper.entityFromEntityAndDto(userEntitySource, userDto))
       .toEqual(userEntityResult)
   })
 
@@ -100,6 +101,8 @@ describe('UserMapperTest', () => {
 
   it('test InvalidSourceExceptionMapper', () => {
     expect(() => userMapper.invalidSourceExceptionMapper(userDto))
+      .toThrow(InvalidSourceExceptionMapper)
+    expect(() => userMapper.invalidSourceExceptionMapper2(userDto))
       .toThrow(InvalidSourceExceptionMapper)
   })
 

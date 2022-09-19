@@ -5,18 +5,22 @@ import { InvalidSourceExceptionMapper } from '../exceptions/invalid-source.excep
 import { InvalidTargetExceptionMapper } from '../exceptions/invalid-target.exception'
 import { ArgumentDescriptor } from '../models/argument-descriptor'
 import { MappingOptions } from '../models/mapping-options'
-import { MAPPING_TARGET, MAPPING_TARGET_TYPE } from './constants'
-import { ClassConstructor, ClassTransformOptions, plainToClass } from 'class-transformer'
+import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
 import { validateSync } from 'class-validator'
 import { isNil } from 'lodash'
 
-export const set = <T> (object: T, propertyName: string, value: any): any => {
-  if (isNil(object) || !(propertyName in object)) { throw new InvalidTargetExceptionMapper(propertyName) }
-  object[propertyName] = value
+export const set = <T> (object: T, propertyNames: string, value: any): any => {
+  const [propertyName, ...rest] = propertyNames.split('.')
+  if (isNil(object) || !(propertyName in object))
+    throw new InvalidTargetExceptionMapper(propertyName, object)
+  else if (rest.length === 0)
+    object[propertyName] = value
+  else
+    set(object[propertyName], propertyNames.slice(propertyName.length + 1), value)
 }
 
 export const get = (object: object, propertyName: string): any => {
-  if (isNil(object) || !(propertyName in object)) { throw new InvalidSourceExceptionMapper(propertyName) }
+  if (isNil(object) || !(propertyName in object)) throw new InvalidSourceExceptionMapper(propertyName)
   return object[propertyName]
 }
 
@@ -27,7 +31,7 @@ export const getAllFunctionNames = (expression: string): string[] => {
 
 export const setGlobalVariable = (key: string, value: any): void => {
   const k = detachUnderscore(key)
-  if (global.suppliedMappingFunctions.indexOf(k) > -1) { throw new IllegalArgumentNameExceptionMapper(k) }
+  if (global.suppliedMappingFunctions.indexOf(k) > -1) throw new IllegalArgumentNameExceptionMapper(k)
   global[k] = value
 }
 
@@ -47,24 +51,21 @@ export const getArgumentNames = (fn: string): string[] => {
   const result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES)
   return result === null ? [] : result
 }
+
 export const getSourceArguments = (
   mapperClass: any,
   mappingMethodName: string,
   sourceNames: string[]
 ): ArgumentDescriptor[] => {
-  return sourceNames.map((sourceName: any, index: number) => {
-    const mappingTargetIndex = Reflect.getOwnMetadata(MAPPING_TARGET, mapperClass, mappingMethodName)
-    const isMappingTarget = !isNil(mappingTargetIndex) && index === mappingTargetIndex
-    const type = isMappingTarget ? Reflect.getOwnMetadata(MAPPING_TARGET_TYPE, mapperClass, mappingMethodName) : undefined
-    return new ArgumentDescriptor(sourceName, isMappingTarget, type)
-  })
+  return sourceNames
+    .map((sourceName, index) => new ArgumentDescriptor(sourceName, mapperClass, mappingMethodName, index))
 }
 
-export const retrieveMappingTarget = <T> (sourceArgs: ArgumentDescriptor[], targetedObject: T): T => {
+export const retrieveMappingTarget = <T> (sourceArgs: ArgumentDescriptor[], targetedType: T): T => {
   const sourceArg = sourceArgs.find(sourceArg => sourceArg.isMappingTarget)
-  if (isNil(sourceArg)) return targetedObject
-  if (!sameType(sourceArg.value, targetedObject)) throw new InvalidMappingTargetExceptionMapper()
-  return instanciate(targetedObject, sourceArg.value)
+  if (isNil(sourceArg)) return undefined
+  if (!sameType(sourceArg.value, targetedType)) throw new InvalidMappingTargetExceptionMapper()
+  return instanciate(targetedType, sourceArg.value)
 }
 
 export const instanciate = <T> (cls: T, plain: any = {}): T => {
@@ -72,13 +73,22 @@ export const instanciate = <T> (cls: T, plain: any = {}): T => {
     excludeExtraneousValues: true,
     enableImplicitConversion: true
   }
-  return plainToClass(cls.constructor as ClassConstructor<T>, plain, options)
+  return plainToInstance(cls.constructor as ClassConstructor<T>, plain, options)
 }
 
 export const control = (mapperClass: any, mappingMethodName: string, ...options: MappingOptions[]): void => {
   options.forEach(option => {
-    option = plainToClass(MappingOptions, option)
+    option = plainToInstance(MappingOptions, option)
     if (validateSync(option, { forbidUnknownValues: true }).length > 0)
       throw new InvalidMappingOptionsExceptionMapper(mapperClass.name, mappingMethodName)
   })
+}
+
+export const clean = <T> (object: T): T => {
+  Object.entries(object).forEach(([key, value]) => {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    if (value === undefined) delete object[key]
+    else if (typeof value === 'object') clean(value)
+  })
+  return object
 }

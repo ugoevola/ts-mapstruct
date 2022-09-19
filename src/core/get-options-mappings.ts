@@ -1,18 +1,20 @@
 import { BadExpressionExceptionMapper } from '../exceptions/bad-expression.exception'
 import { InvalidSourceExceptionMapper } from '../exceptions/invalid-source.exception'
 import { get, getAllFunctionNames, set, setGlobalVariable } from '../utils/utils'
+import { ArgumentDescriptor } from '../models/argument-descriptor'
 import { MappingOptions } from '../models/mapping-options'
+import { convert } from '../utils/converter'
 import { isNil } from 'lodash'
-import { ArgumentDescriptor } from 'models/argument-descriptor'
 
 export const getOptionsMapping = (
   optionsList: MappingOptions[]
 ): Array<[MappingOptions, Function]> => {
+  // eslint-disable-next-line array-callback-return
   return optionsList.map((options: MappingOptions) => {
     if (!isNil(options.value)) return [options, fnValue]
-    if (!isNil(options.source)) return [options, fnSource]
-    if (!isNil(options.expression)) return [options, fnExpression]
-    return (null)
+    else if (!isNil(options.source)) return [options, fnSource]
+    else if (!isNil(options.expression)) return [options, fnExpression]
+    else if (!isNil(options.type)) return [options, fnType]
   })
 }
 
@@ -21,21 +23,51 @@ const fnValue = <T> (
   _mapperClass: any,
   _sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
-): void => set(targetedObject, options.target, valueFromValue(options))
+): void => {
+  const value = convert(valueFromValue(options), options)
+  set(targetedObject, options.target, value)
+}
 
 const fnSource = <T> (
   targetedObject: T,
   _mapperClass: any,
   sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
-): void => set(targetedObject, options.target, valueFromSource(sourceArgs, options))
+): void => {
+  const value = convert(valueFromSource(sourceArgs, options), options)
+  set(targetedObject, options.target, value)
+}
 
 const fnExpression = <T> (
   targetedObject: T,
   mapperClass: any,
   sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
-): void => set(targetedObject, options.target, valueFromExpression(mapperClass, sourceArgs, options))
+): void => {
+  const value = convert(valueFromExpression(mapperClass, sourceArgs, options), options)
+  set(targetedObject, options.target, value)
+}
+
+const fnType = <T> (
+  targetedObject: T,
+  _mapperClass: any,
+  _sourceArgs: ArgumentDescriptor[],
+  options: MappingOptions
+): void => {
+  const value = convert(valueFromType(options.target.split('.'), targetedObject), options)
+  set(targetedObject, options.target, value)
+}
+
+const valueFromType = <T> (
+  targets: string[],
+  targetedObject: T
+): any => {
+  const targetedValue = targetedObject[targets[0]]
+  if (isNil(targetedValue) || targets.length === 1)
+    return targetedValue
+  else
+    return valueFromType(targets.slice(1), targetedValue)
+}
 
 const valueFromValue = (
   options: MappingOptions
@@ -48,9 +80,8 @@ const valueFromSource = (
   options: MappingOptions
 ): any => {
   const [sourceName, sourceProperties] = options.source.split(/\.(.*)/s)
-  if (!sourceArgs.some((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName))) {
+  if (!sourceArgs.some((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName)))
     throw new InvalidSourceExceptionMapper(sourceName)
-  }
   const sourceValue = sourceArgs.find((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName)).value
   return isNil(sourceProperties) ? sourceValue : sourceProperties.split('.').reduce((pre, value) => get(pre, value), sourceValue)
 }
@@ -76,7 +107,7 @@ const setGlobalsVariables = (
   sourceArgs: ArgumentDescriptor[],
   functionNames: string[]
 ): void => {
-  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => setGlobalVariable(sourceArg.name, sourceArg.value))
+  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => setGlobalVariable(sourceArg.nameWithoutFirstUnderscore(), sourceArg.value))
   functionNames.forEach(key => { global[key] = global[key] ?? mapperClass[key] })
 }
 
@@ -84,6 +115,6 @@ const cleanGlobalsVariables = (
   sourceArgs: ArgumentDescriptor[],
   functionNames: string[]
 ): void => {
-  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => { global[sourceArg.name] = undefined })
+  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => { global[sourceArg.nameWithoutFirstUnderscore()] = undefined })
   functionNames.forEach(key => { if (global.suppliedMappingFunctions.indexOf(key) === -1) setGlobalVariable(key, undefined) })
 }

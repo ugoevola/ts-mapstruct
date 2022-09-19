@@ -13,10 +13,10 @@ export const getAfterSuppliers = <T>(
     ?.filter((supplier: SupplierDescriptor) => checkForInvocationForAfter(supplier.args, sourceArgs, targetedObject))
 }
 
-const checkForInvocationForAfter = (
+const checkForInvocationForAfter = <T> (
   supplierArgs: ArgumentDescriptor[],
   sourceArgs: ArgumentDescriptor[],
-  targetedObject: any
+  targetedObject: T
 ): boolean => {
   const result = supplierArgs.filter((supplierArg: ArgumentDescriptor) => !(
     !supplierArg.isMappingTarget && sourceArgs.some(arg => arg.sameNameAs(supplierArg)) ||
