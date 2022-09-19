@@ -1,7 +1,7 @@
 import { Mapper } from '../../src/decorators/mapper.decorator'
 import { Mappings } from '../../src/decorators/mappings.decorator'
-import { UserDto } from '../models/user.dto'
-import { UserEntity } from '../models/user.entity'
+import { UserDto } from '../user/user.dto'
+import { UserEntity } from '../user/user.entity'
 
 @Mapper()
 export class InvalidOptionsMapper {
