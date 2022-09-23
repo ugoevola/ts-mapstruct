@@ -4,17 +4,16 @@ import { get, getAllFunctionNames, set, setGlobalVariable } from '../utils/utils
 import { ArgumentDescriptor } from '../models/argument-descriptor'
 import { MappingOptions } from '../models/mapping-options'
 import { convert } from '../utils/converter'
-import { isNil } from 'lodash'
+import { isArray, isNil } from 'lodash'
 
 export const getOptionsMapping = (
   optionsList: MappingOptions[]
 ): Array<[MappingOptions, Function]> => {
-  // eslint-disable-next-line array-callback-return
   return optionsList.map((options: MappingOptions) => {
-    if (!isNil(options.value)) return [options, fnValue]
-    else if (!isNil(options.source)) return [options, fnSource]
+    if (!isNil(options.source)) return [options, fnSource]
     else if (!isNil(options.expression)) return [options, fnExpression]
     else if (!isNil(options.type)) return [options, fnType]
+    return [options, fnValue]
   })
 }
 
@@ -54,19 +53,23 @@ const fnType = <T> (
   _sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
 ): void => {
-  const value = convert(valueFromType(options.target.split('.'), targetedObject), options)
-  set(targetedObject, options.target, value)
+  convertTargets(targetedObject, options.target.split('.'), options)
 }
 
-const valueFromType = <T> (
+const convertTargets = <T> (
+  targetedObject: T,
   targets: string[],
-  targetedObject: T
-): any => {
-  const targetedValue = targetedObject[targets[0]]
-  if (isNil(targetedValue) || targets.length === 1)
-    return targetedValue
+  options: MappingOptions
+): void => {
+  const value = targetedObject[targets[0]]
+  if (isNil(value))
+    return
+  else if (targets.length === 1)
+    targetedObject[targets[0]] = convert(value, options)
+  else if (isArray(value))
+    value.map(value => convertTargets(value, targets.slice(1), options))
   else
-    return valueFromType(targets.slice(1), targetedValue)
+    convertTargets(value, targets.slice(1), options)
 }
 
 const valueFromValue = (

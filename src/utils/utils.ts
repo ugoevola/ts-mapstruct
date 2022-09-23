@@ -9,14 +9,11 @@ import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-
 import { validateSync } from 'class-validator'
 import { isNil } from 'lodash'
 
-export const set = <T> (object: T, propertyNames: string, value: any): any => {
-  const [propertyName, ...rest] = propertyNames.split('.')
+export const set = (object: any, propertyName: string, value: any): any => {
   if (isNil(object) || !(propertyName in object))
     throw new InvalidTargetExceptionMapper(propertyName, object)
-  else if (rest.length === 0)
-    object[propertyName] = value
   else
-    set(object[propertyName], propertyNames.slice(propertyName.length + 1), value)
+    object[propertyName] = value
 }
 
 export const get = (object: object, propertyName: string): any => {

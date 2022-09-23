@@ -1,16 +1,18 @@
 import { Expose } from 'class-transformer'
 
+export class FriendDto {
+  @Expose() friendlyPoints: number
+  @Expose() fname: string
+  @Expose() bdate: string
+}
+
 export class UserDto {
   @Expose() fname?: string
   @Expose() lname?: string
   @Expose() bdate?: number
   @Expose() isMajor?: boolean
   @Expose() gender?: GenderEnum
-  @Expose() friends?: Friend[]
-}
-
-export class Friend extends UserDto {
-  @Expose() friendlyPoints: number
+  @Expose() friends?: FriendDto[]
 }
 
 export enum GenderEnum {

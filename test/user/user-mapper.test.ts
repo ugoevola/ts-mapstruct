@@ -4,22 +4,29 @@ import { InvalidMappingTargetExceptionMapper } from '../../src/exceptions/invali
 import { InvalidSourceExceptionMapper } from '../../src/exceptions/invalid-source.exception'
 import { InvalidTargetExceptionMapper } from '../../src/exceptions/invalid-target.exception'
 import { UserMapper } from './user.mapper'
-import { Friend, GenderEnum, UserDto } from './user.dto'
-import { UserEntity } from './user.entity'
+import { FriendDto, GenderEnum, UserDto } from './user.dto'
+import { FriendEntity, UserEntity } from './user.entity'
 
 describe('UserMapperTest', () => {
   let userMapper: UserMapper
   let userDto: UserDto
   let userEntity: UserEntity
-  let natacha: Friend
-  let brian: Friend
+  let natacha: FriendDto
+  let natachaEntity: FriendEntity
+  let brian: FriendDto
+  let brianEntity: FriendEntity
 
   beforeAll(() => {
     userMapper = new UserMapper()
 
-    natacha = { friendlyPoints: 10, fname: 'Natacha' }
-    brian = { friendlyPoints: 2, fname: 'Brian' }
+    const date = new Date('December 17, 1995 03:24:00')
+
+    natacha = { friendlyPoints: 10, fname: 'Natacha', bdate: date.toString() }
+    natachaEntity = { friendlyPoints: 10, fname: 'Natacha', bdate: date }
+    brian = { friendlyPoints: 2, fname: 'Brian', bdate: date.toString() }
+    brianEntity = { friendlyPoints: 2, fname: 'Brian', bdate: date }
     const friends = [natacha, brian]
+    const friendsEntities = [natachaEntity, brianEntity]
 
     userDto = new UserDto()
     userDto.fname = 'Ugo'
@@ -34,8 +41,8 @@ describe('UserMapperTest', () => {
     userEntity.cn = 'Ugo'
     userEntity.sn = 'Evola'
     userEntity.bdate = 810926874
-    userEntity.bestFriend = natacha
-    userEntity.friends = friends
+    userEntity.bestFriend = natachaEntity
+    userEntity.friends = friendsEntities
     userEntity.lastConnexionTime = 1663180781624
     userEntity.isMajor = true
   })
@@ -54,7 +61,7 @@ describe('UserMapperTest', () => {
     const userEntity = new UserEntity()
     userEntity.cn = 'Ugo'
     userEntity.sn = 'Ugo'
-    userEntity.bestFriend = brian
+    userEntity.bestFriend = brianEntity
     userEntity.isMajor = true
     expect(userMapper.entityFromArgs('Ugo', 'Evola', brian))
       .toEqual(userEntity)

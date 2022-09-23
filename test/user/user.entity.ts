@@ -1,5 +1,10 @@
 import { Expose } from 'class-transformer'
-import { Friend } from './user.dto'
+
+export class FriendEntity {
+  @Expose() friendlyPoints: number
+  @Expose() fname: string
+  @Expose() bdate: Date
+}
 
 export class UserEntity {
   @Expose() fullName: string
@@ -8,6 +13,6 @@ export class UserEntity {
   @Expose() bdate: number
   @Expose() isMajor: boolean
   @Expose() lastConnexionTime: number
-  @Expose() bestFriend: Friend
-  @Expose() friends: Friend[]
+  @Expose() bestFriend: FriendEntity
+  @Expose() friends: FriendEntity[]
 }
