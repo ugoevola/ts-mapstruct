@@ -2,6 +2,20 @@
 
 TS-Mapstruct is an approach of the JAVA [MapStruct](https://mapstruct.org/) addapted in  **TypeScript**.
 It's a code generator that simplifies the implementation of mappings over configuration approach.
+## Table of contents
+- [Installation](#installation)
+- [Recommendations](#recommendations)
+- [Usage](#usage)
+  - [Classes](#classes)
+  - [Mapper](#mapper)
+  - [Usage](#usage-1)
+  - [Type conversion](#type-conversion)
+  - [Implicit Mapping](#implicit-mapping)
+  - [@BeforeMapping / @AfterMapping](#beforemapping--aftermapping)
+  - [@MappingTarget](#mappingtarget)
+  - [MappingOptions](#mapping-options)
+  - [Supplied Mapping Functions](#supplied-mapping-functions)
+- [Exceptions thrown](#exceptions-thrown)
 
 ## Installation
 
@@ -10,48 +24,65 @@ npm install ts-mapstruct
 ```
 ## Recommendations
 
-It is recommended that the DTO constructor can be empty for simplify the code, but it is not a problem if it cannot.
+It is recommended that the DTO constructor can be empty for simplify the code, but it is not a problem if this is not the case.
 
-This is a library that is made to go hand in hand with [Nestjs](https://nestjs.com/). It goes well with its layered architecture, and can be used in an Injectable. This can facilitate dependency injection if you need other classes to do your mapping.
+This is a library that is designed to go hand in hand with [Nestjs](https://nestjs.com/). It fits well with its layered architecture, and can be used in an Injectable. This can make dependency injection easier if you need other services to make your mapping.<br>
+But it can be used in any typescript project.
 ## Usage
 For the exemple, I will take a **UserMapper** that maps a **UserDto** into **UserEntity**.
-### DTO
-
+### Classes
+You must expose the properties of the target class by using an apropriate decorator.<br>
+Otherwise, you will retrieve an empty Object, and probably have MapperExceptions. <br>
+In this example, I'm using @Expose() decorator of the [class-tranformer library](https://www.npmjs.com/package/class-transformer#enforcing-type-safe-instance)
 ```ts
 export class UserDto {
-  private fname: string;
-  private lname: string;
-  private bdate: number;
-  private isMajor: boolean;
-  private gender: GenderEnum;
-  private friends: Friend[];
+  @Expose() private fname: string;
+  @Expose() private lname: string;
+  @Expose() private bdate: number;
+  @Expose() private isMajor: boolean;
+  @Expose() private gender: GenderEnum;
+  @Expose() private friends: FriendDto[];
 }
 
-export class Friend extends UserDto {
-  private friendlyPoints: number;
+export class FriendDto {
+  @Expose() private friendlyPoints: number;
+  @Expose() private bdate: string;
+
+  public toString(): string {
+    return 'FriendDtoToString'
+  }
 }
 
 ```
 ```ts
 export class UserEntity {
-  private fullName: string;
-  private cn: string;
-  private sn: string;
-  private bdate: number;
-  private isMajor: boolean;
-  private lastConnexionTime: number;
-  private bestFriend: Friend;
-  private friends: Friend[];
+  @Expose() private fullName: string;
+  @Expose() private cn: string;
+  @Expose() private sn: string;
+  @Expose() private bdate: number;
+  @Expose() private isMajor: boolean;
+  @Expose() private lastConnexionTime: number;
+  @Expose() private bestFriend: FriendEntity;
+  @Expose() private friends: FriendEntity[];
 
   constructor(fullName?: string) {
     this.fullName = fullName;
+  }
+}
+
+export class FriendEntity {
+  @Expose() private friendlyPoints: number;
+  @Expose() private bdate: Date;
+
+  public toString(): string {
+    return 'FriendEntityToString'
   }
 }
 ```
 ### Mapper
 
 ```ts
-@Injectable()
+@Mapper()
 export class UserMapper {
 
   /*-------------------*\
@@ -67,6 +98,8 @@ export class UserMapper {
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     // good practice: allways return an empty typed Object
+    // if you don't want expose the properties of the targeted object's class
+    // you must return here an object with the property to map
     return new UserEntity;
   }
 
@@ -78,8 +111,8 @@ export class UserMapper {
      Mapping methods
   \*-------------------*/
   
-  getBestFriend(friends: Friend[]): Friend {
-    return friends.reduce((acc: Friend, cur: Friend) => {
+  getBestFriend(friends: FriendDto[]): FriendDto {
+    return friends.reduce((acc: FriendDto, cur: FriendDto) => {
       return acc.friendlyPoints > cur.friendlyPoints ? acc : cur;
     })
   }
@@ -87,7 +120,7 @@ export class UserMapper {
 ```
 ### Usage
 ```ts
-@Injectable()
+@Mapper()
 export class UserService {
   constructor(private userMapper: UserMapper) {}
 
@@ -100,14 +133,69 @@ export class UserService {
   }
 }
 ```
-### @BeforeMapping / @AfterMapping
+### Type conversion
+The TS code is trans-compiled in JS before being executed, so the types of the source objects are kept on the end object.
 
+In the previous example, the friends and bestFriends properties will remain FriendDto and not FriendEntity, and the same for the methods, they will be those of FrienDto.
+
+The library allows you  to define the targeted type for each property:
+```ts
+@Mappings(
+    { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
+    { target: 'cn', source: 'userDto.fname' },
+    { target: 'sn', source: 'userDto.lname' },
+    { target: 'lastConnexionTime', value: Date.now() },
+    // changed
+    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)', type: FriendEntity },
+    { target: 'friends', type: FriendEntity }
+  )
+  entityFromDto(_userDto: UserDto): UserEntity {
+    return new UserEntity;
+  }
+```
+
+If you have multiple depths in your object, you can target the right property with the right type like this:
+```ts
+@Mappings(
+    { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
+    { target: 'cn', source: 'userDto.fname' },
+    { target: 'sn', source: 'userDto.lname' },
+    { target: 'lastConnexionTime', value: Date.now() },
+    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)', type: FriendEntity },
+    { target: 'friends', type: FriendEntity },
+    // changed
+    { target: 'friends.bdate', type: Date },
+    { target: 'bestFriend.bdate', type: Date }
+  )
+  entityFromDto(_userDto: UserDto): UserEntity {
+    return new UserEntity;
+  }
+```
+Below are examples of options that may exist:
+
+```ts
+  // Below are good to iterate on each properties of iterable
+  { target: 'prop', type: Date }
+  { target: 'prop', type: String }
+  { target: 'prop', type: Boolean }
+  { target: 'prop', type: Number }
+  // Below are good to take the whole of the iterable object
+  { target: 'prop', type: 'string' }
+  { target: 'prop', type: 'boolean' } // force the String 'false' to false
+  { target: 'prop', type: 'number' }
+  { target: 'prop', type: 'date' }
+  // used to convert Date to string with a specific format
+  // cf. Intl.DateTimeFormat for more informations
+  { target: 'prop', type: String, dateFormat: ['Fr-fr', { dateStyle: 'full', timeStyle: 'long' }] }
+```
+### @BeforeMapping / @AfterMapping
+These decorators are to be placed on internal methods of the mapper. They allow to execute them before or after the mapping.<br>
 The method invocation is only generated if all parameters can be assigned by the available source of the mapping method.
 
 **The recovery of the sources is done on the name of the arguments and not on the type. If you do not name the argument at the same way, the method will not be invoked.** 
 
 ```ts
-Injectable()
+@Mapper()
 export class UserMapper {
 
   /*-------------------*\
@@ -184,7 +272,7 @@ export class UserMapper {
 Note: if you return object from your @AfterMapping or @BeforeMapping function, it will not be considered.
 
 ### @MappingTarget
-The MappingTarget allows you to pass the resulting object throw the method to perform some actions on it.
+The MappingTarget allows you to pass the resulting object throw the methods to perform some actions on it.
 
 ```ts
 Injectable()
@@ -238,9 +326,9 @@ export class UserMapper {
 
 }
 ```
-Notes: There are 2 differences between using **@MappingTarget** in the **@BeforeMapping** method and the **@AfterMapping** method:
-- In a **@BeforeMapping**, the **@MappingTarget** argument must be part of the mapping method's arguments in order to invoke the **@BeforeMapping** method. Whereas in the **@AfterMapping** method, the **@MappingTarget** argument is not a required argument of the mapping method to invoke the **@AfterMapping** method.
-- For using **@MappingTarget** in **@AfterMapping** method, you must provide the return type of the mappingMethod in **@MappingTarget** decorator.
+> **Notes**: @MappingTarget is not used in the same way depending on the type of method in which it is used:
+> - In an @BeforeMapping method, the argument bound to the @MappingTarget decorator must also be found in the mapping method. Otherwise @BeforeMapping will not be invoked.
+> - In an @AfterMapping method, the argument bound to the @MappingTarget does not have to be in the mapping method. However, you must provide the return type of the mapping method for the @AfterMapping method to be invoked.
 
 
 ### Mapping Options
@@ -251,20 +339,30 @@ MappingOptions is the object that you have to pass throw the @Mappings decorator
 | source      | The source name property       | false |
 | value      | A direct value       | false |
 | expression   | A JS expression        | false |
+| type   | The type of the targeted property        | false |
+| dateFormat   | Used to convert a Date to a String <br> Array with the locale in 1st pos. and the options in 2nd. pos. (cf. Intl.DateTimeFormat for more informations)       | false |
 
-You must provide exactly one of the non required properties in the @Mappings decorator, an Exception will be throw otherwise.
+If a MappingOptions is not correctly filled, an error will be generated when instantiating the Mapper.<br>
+At least one of these fields must be completed: source, value, expression, type.<br>
+At most one of these fields must be completed: source, value, expression.
 
 ### Supplied Mapping Functions
-the mapper provides some functions to pass via the "expression" property to facilitate the mapping:
+The mapper provides some functions to pass via the "expression" property to facilitate the mapping:
 ```ts
 /**
 *  concatenates each property provided in the running order.
-*  You have the possibility to define a separator passed at the last index
-*  @params properties: properties to concat
+*  The last argument is the separator
+*  @params properties: properties to concat and the separator
 *  @return string: the concatenation of each properties
 *  @required each property must be a string
 */
-getConcatProperties(...properties: [...string, string?]): string
+getConcatProperties(...properties: [...string, string]): string
+```
+```ts
+/**
+*  return an empty string if the value is undefined or null
+*/
+getOrEmptyString(value: any): any | string
 ```
 ## Exceptions thrown
 
@@ -305,21 +403,6 @@ export class UserMapper {
 }
 ```
 
-**InvalidMappingTargetExceptionMapper**
-
-```ts
-Injectable()
-export class UserMapper {
-  
-  // this will throw an InvalidMappingTargetExceptionMapper because
-  // the provided @MappingTarget object does not have the type of the returned mapping function
-  @Mappings()
-  invalidMappingTargetExceptionMapper (@MappingTarget() _userDto: UserDto): UserEntity {
-    return new UserEntity()
-  }
-}
-```
-
 **InvalidMappingOptionsExceptionMapper**
 
 ```ts
@@ -332,6 +415,21 @@ export class UserMapper {
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;
+  }
+}
+```
+
+**InvalidMappingTargetExceptionMapper**
+
+```ts
+Injectable()
+export class UserMapper {
+  
+  // this will throw an InvalidMappingTargetExceptionMapper because
+  // the provided @MappingTarget object does not have the type of the returned mapping function
+  @Mappings()
+  invalidMappingTargetExceptionMapper (@MappingTarget() _userDto: UserDto): UserEntity {
+    return new UserEntity()
   }
 }
 ```

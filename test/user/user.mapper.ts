@@ -3,8 +3,8 @@ import { MappingTarget } from '../../src/decorators/mapping-target.decorator'
 import { AfterMapping } from '../../src/decorators/after-mapping.decorator'
 import { BeforeMapping } from '../../src/decorators/before-mapping.decorator'
 import { Mappings } from '../../src/decorators/mappings.decorator'
-import { Friend, UserDto } from '../user/user.dto'
-import { UserEntity } from './user.entity'
+import { FriendDto, UserDto } from '../user/user.dto'
+import { FriendEntity, UserEntity } from './user.entity'
 import { Mapper } from '../../src/decorators/mapper.decorator'
 
 @Mapper()
@@ -18,7 +18,10 @@ export class UserMapper {
     { target: 'cn', source: 'userDto.fname' },
     { target: 'sn', source: 'userDto.lname' },
     { target: 'lastConnexionTime', value: 1663180781624 },
-    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)' }
+    { target: 'friends', type: FriendEntity },
+    { target: 'friends.bdate', type: Date },
+    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)', type: FriendEntity },
+    { target: 'bestFriend.bdate', type: Date }
   )
   entityFromDto (_userDto: UserDto): UserEntity {
     // good practice: allways return an empty typed Object
@@ -32,19 +35,27 @@ export class UserMapper {
   @Mappings(
     { target: 'cn', expression: 'getOrEmptyString(commonName)' },
     { target: 'sn', source: 'secondName' },
-    { target: 'bestFriend', source: 'bestFriend' }
+    { target: 'bdate', value: undefined },
+    { target: 'friends', type: FriendEntity },
+    { target: 'friends.bdate', type: Date },
+    { target: 'bestFriend', source: 'bestFriend', type: FriendEntity },
+    { target: 'bestFriend.bdate', type: Date }
   )
   entityFromArgs (
     _commonName: string,
     _secondName: string,
-    _bestFriend: Friend
+    _bestFriend: FriendDto
   ): UserEntity {
     return new UserEntity()
   }
 
   @Mappings(
     { target: 'fullName', expression: 'getConcatProperties(user.cn, user.sn, " ")' },
-    { target: 'lastConnexionTime', value: 1663180781624 }
+    { target: 'lastConnexionTime', value: 1663180781624 },
+    { target: 'friends', type: FriendEntity },
+    { target: 'friends.bdate', type: Date },
+    { target: 'bestFriend', type: FriendEntity },
+    { target: 'bestFriend.bdate', type: Date }
   )
   entityFromEntityAndDto (@MappingTarget() _user: UserEntity, _userDto: UserDto): UserEntity {
     return new UserEntity()
@@ -54,8 +65,8 @@ export class UserMapper {
      Mapping methods
   \*------------------- */
 
-  getBestFriend (friends: Friend[]): Friend {
-    return friends.reduce((acc: Friend, cur: Friend) => {
+  getBestFriend (friends: FriendDto[]): FriendDto {
+    return friends.reduce((acc: FriendDto, cur: FriendDto) => {
       return acc.friendlyPoints > cur.friendlyPoints ? acc : cur
     })
   }
