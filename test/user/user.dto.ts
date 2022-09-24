@@ -16,5 +16,6 @@ export class UserDto {
 }
 
 export enum GenderEnum {
-  M, F
+  M,
+  F
 }

@@ -3,7 +3,7 @@ import { SubImplicit } from './sub-implicit'
 export class SubSubImplicitDto {
   property: string
 
-  toString (): string {
+  toString(): string {
     return 'SubSubImplicitDtoToString'
   }
 }
@@ -20,7 +20,7 @@ export class SubImplicitDto {
   dateProp: Date
   subSubImplicit: SubSubImplicitDto
 
-  toString (): string {
+  toString(): string {
     return 'SubImplicitDtoToString'
   }
 }

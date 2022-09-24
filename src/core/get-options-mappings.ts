@@ -17,7 +17,7 @@ export const getOptionsMapping = (
   })
 }
 
-const fnValue = <T> (
+const fnValue = <T>(
   targetedObject: T,
   _mapperClass: any,
   _sourceArgs: ArgumentDescriptor[],
@@ -27,7 +27,7 @@ const fnValue = <T> (
   set(targetedObject, options.target, value)
 }
 
-const fnSource = <T> (
+const fnSource = <T>(
   targetedObject: T,
   _mapperClass: any,
   sourceArgs: ArgumentDescriptor[],
@@ -37,17 +37,20 @@ const fnSource = <T> (
   set(targetedObject, options.target, value)
 }
 
-const fnExpression = <T> (
+const fnExpression = <T>(
   targetedObject: T,
   mapperClass: any,
   sourceArgs: ArgumentDescriptor[],
   options: MappingOptions
 ): void => {
-  const value = convert(valueFromExpression(mapperClass, sourceArgs, options), options)
+  const value = convert(
+    valueFromExpression(mapperClass, sourceArgs, options),
+    options
+  )
   set(targetedObject, options.target, value)
 }
 
-const fnType = <T> (
+const fnType = <T>(
   targetedObject: T,
   _mapperClass: any,
   _sourceArgs: ArgumentDescriptor[],
@@ -56,25 +59,19 @@ const fnType = <T> (
   convertTargets(targetedObject, options.target.split('.'), options)
 }
 
-const convertTargets = <T> (
-  targetedObject: T,
-  targets: string[],
+const convertTargets = (
+  object: any,
+  [target, ...rest]: string[],
   options: MappingOptions
 ): void => {
-  const value = targetedObject[targets[0]]
-  if (isNil(value))
-    return
-  else if (targets.length === 1)
-    targetedObject[targets[0]] = convert(value, options)
-  else if (isArray(value))
-    value.map(value => convertTargets(value, targets.slice(1), options))
-  else
-    convertTargets(value, targets.slice(1), options)
+  const value = object[target]
+  if (isNil(value)) return
+  else if (rest.length === 0) object[target] = convert(value, options)
+  else if (isArray(value)) value.map(value => convertTargets(value, rest, options))
+  else convertTargets(value, rest, options)
 }
 
-const valueFromValue = (
-  options: MappingOptions
-): any => {
+const valueFromValue = (options: MappingOptions): any => {
   return options.value
 }
 
@@ -83,10 +80,20 @@ const valueFromSource = (
   options: MappingOptions
 ): any => {
   const [sourceName, sourceProperties] = options.source.split(/\.(.*)/s)
-  if (!sourceArgs.some((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName)))
+  if (
+    !sourceArgs.some((sourceArg: ArgumentDescriptor) =>
+      sourceArg.nameEquals(sourceName)
+    )
+  )
     throw new InvalidSourceExceptionMapper(sourceName)
-  const sourceValue = sourceArgs.find((sourceArg: ArgumentDescriptor) => sourceArg.nameEquals(sourceName)).value
-  return isNil(sourceProperties) ? sourceValue : sourceProperties.split('.').reduce((pre, value) => get(pre, value), sourceValue)
+  const sourceValue = sourceArgs.find((sourceArg: ArgumentDescriptor) =>
+    sourceArg.nameEquals(sourceName)
+  ).value
+  return isNil(sourceProperties)
+    ? sourceValue
+    : sourceProperties
+        .split('.')
+        .reduce((pre, value) => get(pre, value), sourceValue)
 }
 
 const valueFromExpression = (
@@ -110,14 +117,23 @@ const setGlobalsVariables = (
   sourceArgs: ArgumentDescriptor[],
   functionNames: string[]
 ): void => {
-  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => setGlobalVariable(sourceArg.nameWithoutFirstUnderscore(), sourceArg.value))
-  functionNames.forEach(key => { global[key] = global[key] ?? mapperClass[key] })
+  sourceArgs.forEach((sourceArg: ArgumentDescriptor) =>
+    setGlobalVariable(sourceArg.nameWithoutFirstUnderscore(), sourceArg.value)
+  )
+  functionNames.forEach(key => {
+    global[key] = global[key] ?? mapperClass[key]
+  })
 }
 
 const cleanGlobalsVariables = (
   sourceArgs: ArgumentDescriptor[],
   functionNames: string[]
 ): void => {
-  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => { global[sourceArg.nameWithoutFirstUnderscore()] = undefined })
-  functionNames.forEach(key => { if (global.suppliedMappingFunctions.indexOf(key) === -1) setGlobalVariable(key, undefined) })
+  sourceArgs.forEach((sourceArg: ArgumentDescriptor) => {
+    global[sourceArg.nameWithoutFirstUnderscore()] = undefined
+  })
+  functionNames.forEach(key => {
+    if (global.suppliedMappingFunctions.indexOf(key) === -1)
+      setGlobalVariable(key, undefined)
+  })
 }

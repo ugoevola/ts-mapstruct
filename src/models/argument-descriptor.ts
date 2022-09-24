@@ -8,24 +8,36 @@ export class ArgumentDescriptor {
   isMappingTarget: boolean
   type: any
 
-  constructor (name: string, mapperClass: any, mappingFunctionName: string, index: number) {
-    const mappingTargetIndex = Reflect.getOwnMetadata(MAPPING_TARGET, mapperClass, mappingFunctionName)
-    const isMappingTarget = !isNil(mappingTargetIndex) && index === mappingTargetIndex
-    const type = isMappingTarget ? Reflect.getOwnMetadata(MAPPING_TARGET_TYPE, mapperClass, mappingFunctionName) : undefined
+  constructor(
+    name: string,
+    mapperClass: any,
+    mappingFunctionName: string,
+    index: number
+  ) {
+    const mappingTargetIndex = Reflect.getOwnMetadata(
+      MAPPING_TARGET,
+      mapperClass,
+      mappingFunctionName
+    )
+    const isMappingTarget =
+      !isNil(mappingTargetIndex) && index === mappingTargetIndex
+    const type = isMappingTarget
+      ? Reflect.getOwnMetadata(MAPPING_TARGET_TYPE, mapperClass, mappingFunctionName)
+      : undefined
     this.name = name
     this.isMappingTarget = isMappingTarget
     this.type = type
   }
 
-  sameNameAs (arg: ArgumentDescriptor): boolean {
+  sameNameAs(arg: ArgumentDescriptor): boolean {
     return this.nameWithoutFirstUnderscore() === arg.nameWithoutFirstUnderscore()
   }
 
-  nameEquals (name: string): boolean {
+  nameEquals(name: string): boolean {
     return this.nameWithoutFirstUnderscore() === detachUnderscore(name)
   }
 
-  nameWithoutFirstUnderscore (): string {
+  nameWithoutFirstUnderscore(): string {
     return detachUnderscore(this.name)
   }
 }

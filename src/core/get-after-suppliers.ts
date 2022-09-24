@@ -9,18 +9,33 @@ export const getAfterSuppliers = <T>(
   targetedObject: T
 ): SupplierDescriptor[] => {
   return (Reflect.getOwnMetadata(AFTER_MAPPING, mapperClass) || [])
-    ?.map((fnName: string) => new SupplierDescriptor(fnName, Reflect.getOwnMetadata(VALUE, mapperClass, fnName), mapperClass))
-    ?.filter((supplier: SupplierDescriptor) => checkForInvocationForAfter(supplier.args, sourceArgs, targetedObject))
+    ?.map(
+      (fnName: string) =>
+        new SupplierDescriptor(
+          fnName,
+          Reflect.getOwnMetadata(VALUE, mapperClass, fnName),
+          mapperClass
+        )
+    )
+    ?.filter((supplier: SupplierDescriptor) =>
+      checkForInvocationForAfter(supplier.args, sourceArgs, targetedObject)
+    )
 }
 
-const checkForInvocationForAfter = <T> (
+const checkForInvocationForAfter = <T>(
   supplierArgs: ArgumentDescriptor[],
   sourceArgs: ArgumentDescriptor[],
   targetedObject: T
 ): boolean => {
-  const result = supplierArgs.filter((supplierArg: ArgumentDescriptor) => !(
-    !supplierArg.isMappingTarget && sourceArgs.some(arg => arg.sameNameAs(supplierArg)) ||
-    supplierArg.isMappingTarget && sameType(supplierArg.type.prototype, targetedObject)))
-    .length === 0
+  const result =
+    supplierArgs.filter(
+      (supplierArg: ArgumentDescriptor) =>
+        !(
+          (!supplierArg.isMappingTarget &&
+            sourceArgs.some(arg => arg.sameNameAs(supplierArg))) ||
+          (supplierArg.isMappingTarget &&
+            sameType(supplierArg.type.prototype, targetedObject))
+        )
+    ).length === 0
   return result
 }

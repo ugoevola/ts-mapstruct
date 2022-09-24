@@ -1,6 +1,6 @@
 import { ArgumentDescriptor } from '../models/argument-descriptor'
 
-export const mapImplicitProperties = <T> (
+export const mapImplicitProperties = <T>(
   sourceArgs: ArgumentDescriptor[],
   targetedObject: T
 ): void => {
@@ -10,7 +10,7 @@ export const mapImplicitProperties = <T> (
   })
 }
 
-const mapImplicitValue = <T> (
+const mapImplicitValue = <T>(
   sourceArg: ArgumentDescriptor,
   targetedObject: T
 ): void => {
@@ -18,7 +18,7 @@ const mapImplicitValue = <T> (
     targetedObject[sourceArg.nameWithoutFirstUnderscore()] = sourceArg.value
 }
 
-const mapImplicitObject = <T> (
+const mapImplicitObject = <T>(
   sourceArg: ArgumentDescriptor,
   targetedObject: T
 ): void => {

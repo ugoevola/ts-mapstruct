@@ -48,13 +48,11 @@ describe('UserMapperTest', () => {
   })
 
   it('test entityFromDto & getConcatProperties', () => {
-    expect(userMapper.entityFromDto(userDto))
-      .toEqual(userEntity)
+    expect(userMapper.entityFromDto(userDto)).toEqual(userEntity)
   })
 
   it('test entitiesFromDtos', () => {
-    expect(userMapper.entitiesFromDtos([userDto]))
-      .toEqual([userEntity])
+    expect(userMapper.entitiesFromDtos([userDto])).toEqual([userEntity])
   })
 
   it('test entityFromArgs && MapingTarget AfterMapping', () => {
@@ -63,63 +61,71 @@ describe('UserMapperTest', () => {
     userEntity.sn = 'Ugo'
     userEntity.bestFriend = brianEntity
     userEntity.isMajor = true
-    expect(userMapper.entityFromArgs('Ugo', 'Evola', brian))
-      .toEqual(userEntity)
+    expect(userMapper.entityFromArgs('Ugo', 'Evola', brian)).toEqual(userEntity)
     userEntity.cn = ''
     delete userEntity.sn
-    expect(userMapper.entityFromArgs(undefined, 'Evola', brian))
-      .toEqual(userEntity)
+    expect(userMapper.entityFromArgs(undefined, 'Evola', brian)).toEqual(userEntity)
   })
 
   it('test BeforeMapping', () => {
     const userDtoCopy = { ...userDto }
     delete userDtoCopy.fname
-    expect(() => userMapper.entityFromDto(userDtoCopy))
-      .toThrow('1: The commonName and secondName must be defined')
-    expect(() => userMapper.entityFromArgs('Ugo', undefined, natacha))
-      .toThrow('2: The commonName and secondName must be defined')
+    expect(() => userMapper.entityFromDto(userDtoCopy)).toThrow(
+      '1: The commonName and secondName must be defined'
+    )
+    expect(() => userMapper.entityFromArgs('Ugo', undefined, natacha)).toThrow(
+      '2: The commonName and secondName must be defined'
+    )
   })
 
   it('test MappingTarget BeforeMapping', () => {
     const userEntityCopy = new UserEntity()
-    expect(() => userMapper.entityFromEntityAndDto(userEntityCopy, userDto))
-      .toThrow('4: The commonName and secondName must be defined')
+    expect(() => userMapper.entityFromEntityAndDto(userEntityCopy, userDto)).toThrow(
+      '4: The commonName and secondName must be defined'
+    )
   })
 
   it('test MappingTarget Mappings', () => {
     const userEntitySource = new UserEntity()
     userEntitySource.cn = 'Ugo'
     userEntitySource.sn = 'Evola'
-    const userEntityResult = {... userEntity}
+    const userEntityResult = { ...userEntity }
     delete userEntityResult.bestFriend
-    expect(userMapper.entityFromEntityAndDto(userEntitySource, userDto))
-      .toEqual(userEntityResult)
+    expect(userMapper.entityFromEntityAndDto(userEntitySource, userDto)).toEqual(
+      userEntityResult
+    )
   })
 
   it('test BadExpressionExceptionMapper', () => {
-    expect(() => userMapper.badExpressionExceptionMapper(userDto))
-      .toThrow(BadExpressionExceptionMapper)
+    expect(() => userMapper.badExpressionExceptionMapper(userDto)).toThrow(
+      BadExpressionExceptionMapper
+    )
   })
 
   it('test IllegalArgumentNameExceptionMapper', () => {
-    expect(() => userMapper.illegalArgumentNameExceptionMapper(userDto))
-      .toThrow(IllegalArgumentNameExceptionMapper)
+    expect(() => userMapper.illegalArgumentNameExceptionMapper(userDto)).toThrow(
+      IllegalArgumentNameExceptionMapper
+    )
   })
 
   it('test InvalidSourceExceptionMapper', () => {
-    expect(() => userMapper.invalidSourceExceptionMapper(userDto))
-      .toThrow(InvalidSourceExceptionMapper)
-    expect(() => userMapper.invalidSourceExceptionMapper2(userDto))
-      .toThrow(InvalidSourceExceptionMapper)
+    expect(() => userMapper.invalidSourceExceptionMapper(userDto)).toThrow(
+      InvalidSourceExceptionMapper
+    )
+    expect(() => userMapper.invalidSourceExceptionMapper2(userDto)).toThrow(
+      InvalidSourceExceptionMapper
+    )
   })
 
   it('test InvalidTargetExceptionMapper', () => {
-    expect(() => userMapper.invalidTargetExceptionMapper(userDto))
-      .toThrow(InvalidTargetExceptionMapper)
+    expect(() => userMapper.invalidTargetExceptionMapper(userDto)).toThrow(
+      InvalidTargetExceptionMapper
+    )
   })
 
   it('test InvalidMappingTargetExceptionMapper', () => {
-    expect(() => userMapper.invalidMappingTargetExceptionMapper(userDto))
-      .toThrow(InvalidMappingTargetExceptionMapper)
+    expect(() => userMapper.invalidMappingTargetExceptionMapper(userDto)).toThrow(
+      InvalidMappingTargetExceptionMapper
+    )
   })
 })

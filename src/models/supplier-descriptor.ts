@@ -6,20 +6,24 @@ export class SupplierDescriptor {
   args: ArgumentDescriptor[]
   fn: Function
 
-  constructor (name: string, fn: Function, mapperClass: any) {
+  constructor(name: string, fn: Function, mapperClass: any) {
     this.name = name
     this.fn = fn
-    this.args = getArgumentNames(this.fn.toString())
-      .map((argName, index) => new ArgumentDescriptor(argName, mapperClass, this.name, index))
+    this.args = getArgumentNames(this.fn.toString()).map(
+      (argName, index) =>
+        new ArgumentDescriptor(argName, mapperClass, this.name, index)
+    )
   }
 
-  computeArgumentsValue = <T> (
+  computeArgumentsValue = <T>(
     sourceArgs: ArgumentDescriptor[],
     targetedObject: T
   ): void => {
     this.args.forEach((supplierArg: ArgumentDescriptor) => {
       if (!supplierArg.isMappingTarget) {
-        const value = sourceArgs.find(sourceArg => sourceArg.sameNameAs(supplierArg)).value
+        const value = sourceArgs.find(sourceArg =>
+          sourceArg.sameNameAs(supplierArg)
+        ).value
         supplierArg.value = value
       } else {
         supplierArg.value = targetedObject

@@ -19,13 +19,14 @@ describe('SimpleMapperTest', () => {
   })
 
   it('test getSimpleFromSampleDto', () => {
-    const simple = plainToInstance(Simple, { property1: 'test', property2: { a: 'b', c: true, d: 42 } })
-    expect(simpleMapper.getSimpleFromSampleDto(simpleDto))
-      .toEqual(simple)
+    const simple = plainToInstance(Simple, {
+      property1: 'test',
+      property2: { a: 'b', c: true, d: 42 }
+    })
+    expect(simpleMapper.getSimpleFromSampleDto(simpleDto)).toEqual(simple)
   })
 
   it('test getSimple', () => {
-    expect(simpleMapper.getSimple())
-      .toEqual(new Simple())
+    expect(simpleMapper.getSimple()).toEqual(new Simple())
   })
 })

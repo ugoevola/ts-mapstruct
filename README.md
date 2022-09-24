@@ -141,12 +141,11 @@ In the previous example, the friends and bestFriends properties will remain Frie
 The library allows you  to define the targeted type for each property:
 ```ts
 @Mappings(
-    { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
-    { target: 'cn', source: 'userDto.fname' },
-    { target: 'sn', source: 'userDto.lname' },
-    { target: 'lastConnexionTime', value: Date.now() },
-    // changed
-    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)', type: FriendEntity },
+    { 
+      target: 'bestFriend',
+      expression: 'getBestFriend(userDto.friends)',
+      type: FriendEntity
+    },
     { target: 'friends', type: FriendEntity }
   )
   entityFromDto(_userDto: UserDto): UserEntity {
@@ -157,13 +156,12 @@ The library allows you  to define the targeted type for each property:
 If you have multiple depths in your object, you can target the right property with the right type like this:
 ```ts
 @Mappings(
-    { target: 'fullName', expression: 'getConcatProperties(userDto.fname, userDto.lname)' },
-    { target: 'cn', source: 'userDto.fname' },
-    { target: 'sn', source: 'userDto.lname' },
-    { target: 'lastConnexionTime', value: Date.now() },
-    { target: 'bestFriend', expression: 'getBestFriend(userDto.friends)', type: FriendEntity },
+    { 
+      target: 'bestFriend',
+      expression: 'getBestFriend(userDto.friends)',
+      type: FriendEntity
+    },
     { target: 'friends', type: FriendEntity },
-    // changed
     { target: 'friends.bdate', type: Date },
     { target: 'bestFriend.bdate', type: Date }
   )
@@ -186,7 +184,11 @@ Below are examples of options that may exist:
   { target: 'prop', type: 'date' }
   // used to convert Date to string with a specific format
   // cf. Intl.DateTimeFormat for more informations
-  { target: 'prop', type: String, dateFormat: ['Fr-fr', { dateStyle: 'full', timeStyle: 'long' }] }
+  {
+    target: 'prop',
+    type: String,
+    dateFormat: ['Fr-fr', { dateStyle: 'full', timeStyle: 'long' }]
+  }
 ```
 ### @BeforeMapping / @AfterMapping
 These decorators are to be placed on internal methods of the mapper. They allow to execute them before or after the mapping.<br>
@@ -376,7 +378,7 @@ export class UserMapper {
   
   // this will throw a BadExpressionExceptionMapper because the expression for fullName can't be evaluated (unknownMethod does not exist)
   @Mappings(
-    { target: 'fullName', expression: 'unknownMethod()' },
+    { target: 'fullName', expression: 'unknownMethod()' }
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;
@@ -411,7 +413,7 @@ export class UserMapper {
   
   // this will throw an InvalidMappingOptionsExceptionMapper because you provide multiple sources (value and source) for cn in one MappingOption
   @Mappings(
-    { target: 'cn', value: 'Ugo', source: 'userDto.fname' },
+    { target: 'cn', value: 'Ugo', source: 'userDto.fname' }
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;
@@ -442,7 +444,7 @@ export class UserMapper {
   
   // this will throw an InvalidSourceExceptionMapper because userDto.unknownProperty does not exist
   @Mappings(
-    { target: 'cn', source: 'userDto.unknownProperty' },
+    { target: 'cn', source: 'userDto.unknownProperty' }
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;
@@ -458,7 +460,7 @@ export class UserMapper {
   
   // this will throw an InvalidTargetExceptionMapper because unknown does not exist on UserEntity
   @Mappings(
-    { target: 'unknown', source: 'userDto.fname' },
+    { target: 'unknown', source: 'userDto.fname' }
   )
   entityFromDto(_userDto: UserDto): UserEntity {
     return new UserEntity;

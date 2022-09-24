@@ -1,3 +1,9 @@
+# [3.0.1](https://github.com/ugoevola/ts-mapstruct/releases/tag/v3.0.1)
+
+### Added
+- Prettier
+### Fixed
+- Controls on MappingOptions
 # [3.0.0](https://github.com/ugoevola/ts-mapstruct/releases/tag/v3.0.0)
 ### Breaking Changed
 - The **@Mappings** decorator doesn't work without **@Mapper** on the parent class

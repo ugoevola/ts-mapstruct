@@ -1,8 +1,11 @@
 import { ImplicitMapper } from './implicit.mapper'
 import { ImplicitDto, SubImplicitDto, SubSubImplicitDto } from './implicit.dto'
-import { ImplicitEntity, SubImplicitEntity, SubSubImplicitEntity } from './implicit.entity'
+import {
+  ImplicitEntity,
+  SubImplicitEntity,
+  SubSubImplicitEntity
+} from './implicit.entity'
 import { SubImplicit } from './sub-implicit'
-import { plainToInstance } from 'class-transformer'
 
 describe('ImplicitMapperTest', () => {
   let implicitMapper: ImplicitMapper
@@ -52,9 +55,9 @@ describe('ImplicitMapperTest', () => {
     implicitEntity.stringProp = 'stringProp'
     implicitEntity.boolProp = false
     implicitEntity.numProp = 42
-    implicitEntity.stringArrayProp = [ 'fst', 'scd' ]
-    implicitEntity.booleanArrayProp = [ true, false ]
-    implicitEntity.numArrayProp = [ 0, 1, 56 ]
+    implicitEntity.stringArrayProp = ['fst', 'scd']
+    implicitEntity.booleanArrayProp = [true, false]
+    implicitEntity.numArrayProp = [0, 1, 56]
     implicitEntity.mapProp = map
     implicitEntity.objectProp = object
     implicitEntity.dateProp = date
@@ -67,25 +70,27 @@ describe('ImplicitMapperTest', () => {
     implicitEntity.objectToString = object.toString()
     implicitEntity.arrayToString = String(array)
     implicitEntity.stringToDate = new Date(stringDate)
-    
   })
 
   it('test entityFromDto', () => {
     const value = implicitMapper.entityFromDto(implicitDto)
     expect(value).toEqual(implicitEntity)
-    expect(value.dtoClassInstanceProp.subSubImplicit.toString())
-    .toEqual('SubSubImplicitEntityToString');
+    expect(value.dtoClassInstanceProp.subSubImplicit.toString()).toEqual(
+      'SubSubImplicitEntityToString'
+    )
   })
 
   it('test entityFromDtos', () => {
     const implicitDto2 = new ImplicitDto()
     implicitDto2.numProp = 1
-    expect(implicitMapper.entityFromDtos(implicitDto, implicitDto2).numProp)
-      .toEqual(1)
+    expect(implicitMapper.entityFromDtos(implicitDto, implicitDto2).numProp).toEqual(
+      1
+    )
   })
 
   it('test entityFromDtoAndData', () => {
-    expect(implicitMapper.entityFromDtoAndData(implicitDto, new Date(), 'test').stringProp)
-      .toEqual('test')
+    expect(
+      implicitMapper.entityFromDtoAndData(implicitDto, new Date(), 'test').stringProp
+    ).toEqual('test')
   })
 })

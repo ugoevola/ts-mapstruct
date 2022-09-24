@@ -8,7 +8,7 @@ export class SubImplicit {
   mapProp: Map<string, object>
   objectProp: object
 
-  toString (): string {
+  toString(): string {
     return 'SubImplicitToString'
   }
 }
