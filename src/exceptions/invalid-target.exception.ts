@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common'
 
 export class InvalidTargetExceptionMapper extends HttpException {
-  private static readonly MESSAGE = `InvalidTargetExceptionMapper: The target "{}" does not exist on type "{}".`
+  private static readonly MESSAGE = `The target "{}" does not exist on type "{}".`
 
   constructor(target: string, object: any) {
     const message = InvalidTargetExceptionMapper.MESSAGE.replace(

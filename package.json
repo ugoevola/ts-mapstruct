@@ -1,21 +1,21 @@
 {
   "name": "ts-mapstruct",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "test": "jest"
-  },
   "files": [
     "/dist"
   ],
+  "scripts": {
+    "test": "jest"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ugoevola/ts-mapstruct"
   },
   "author": "ugoevola",
   "license": "ISC",
-  "description": "",
+  "description": "TS-Mapstruct is an approach of the JAVA MapStruct addapted in TypeScript.",
   "dependencies": {
     "@nestjs/common": "^9.0.11",
     "class-transformer": "^0.5.1",

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common'
 
 export class InvalidSourceExceptionMapper extends HttpException {
-  private static readonly MESSAGE = `InvalidSourceExceptionMapper: The source "{}" is invalid.`
+  private static readonly MESSAGE = `The source "{}" is invalid.`
 
   constructor(sourceName: string) {
     const message = InvalidSourceExceptionMapper.MESSAGE.replace('{}', sourceName)

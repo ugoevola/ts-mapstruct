@@ -102,7 +102,7 @@ export const control = (
       throw new InvalidMappingOptionsExceptionMapper(
         mapperClass.constructor.name,
         mappingMethodName,
-        errors[0].toString()
+        Object.values(errors[0].constraints)[0]
       )
   })
 }
