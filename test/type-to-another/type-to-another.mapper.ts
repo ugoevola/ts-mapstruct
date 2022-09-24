@@ -1,15 +1,18 @@
-import { Mappings } from "../../src/decorators/mappings.decorator";
-import { Mapper } from "../../src/decorators/mapper.decorator";
-import { TypeEntity } from "./type.entity";
-import { TypeDto } from "./type.dto";
+import { Mappings } from '../../src/decorators/mappings.decorator'
+import { Mapper } from '../../src/decorators/mapper.decorator'
+import { TypeEntity } from './type.entity'
+import { TypeDto } from './type.dto'
 
 @Mapper()
 export class TypeToAnotherMapper {
-
   @Mappings(
     { target: 'booleanToString', type: String },
     { target: 'numToString', type: String },
-    { target: 'dateToString', type: String, dateFormat: ['Fr-fr', { dateStyle: 'full', timeStyle: 'long' }] },
+    {
+      target: 'dateToString',
+      type: String,
+      dateFormat: ['Fr-fr', { dateStyle: 'full', timeStyle: 'long' }]
+    },
     { target: 'stringToNumber', type: Number },
     { target: 'booleanToNumber', type: Number },
     { target: 'anyToNumber', type: 'number' },
@@ -26,6 +29,6 @@ export class TypeToAnotherMapper {
     { target: 'objectToString', type: 'string' }
   )
   entityFromDto(_typeDto: TypeDto): TypeEntity {
-    return new TypeEntity();
+    return new TypeEntity()
   }
 }

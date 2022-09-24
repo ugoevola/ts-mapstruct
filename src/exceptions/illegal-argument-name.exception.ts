@@ -4,7 +4,8 @@ export class IllegalArgumentNameExceptionMapper extends HttpException {
   private static readonly MESSAGE = `IllegalArgumentNameExceptionMapper: 
   Illegal property key passing to the expression : "{}".
   This is a property reserved for supplied mapping functions.`
-  constructor (value: string) {
+
+  constructor(value: string) {
     const message = IllegalArgumentNameExceptionMapper.MESSAGE.replace('{}', value)
     super(message, HttpStatus.INTERNAL_SERVER_ERROR)
   }

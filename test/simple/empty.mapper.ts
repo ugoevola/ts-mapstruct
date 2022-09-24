@@ -1,4 +1,4 @@
-import { Mapper } from "../..";
+import { Mapper } from '../..'
 
 @Mapper()
 export class EmptyMapper {

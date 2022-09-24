@@ -4,7 +4,7 @@ import { SubImplicit } from './sub-implicit'
 export class SubSubImplicitEntity {
   @Expose() property: string
 
-  toString (): string {
+  toString(): string {
     return 'SubSubImplicitEntityToString'
   }
 }
@@ -20,7 +20,7 @@ export class SubImplicitEntity {
   @Expose() objectProp: object
   @Expose() subSubImplicit: SubSubImplicitEntity
 
-  toString (): string {
+  toString(): string {
     return 'SubImplicitEntityToString'
   }
 }
@@ -45,7 +45,7 @@ export class ImplicitEntity {
   @Expose() arrayToString: string
   @Expose() stringToDate: Date
 
-  toString (): string {
+  toString(): string {
     return 'ImplicitEntityToString'
   }
 }

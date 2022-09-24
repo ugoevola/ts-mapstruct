@@ -6,7 +6,7 @@ import { Simple } from './simple.entity'
 @Mapper()
 export class SimpleMapper {
   @Mappings()
-  getSimpleFromSampleDto (_simpleDto: SimpleDto): Simple {
+  getSimpleFromSampleDto(_simpleDto: SimpleDto): Simple {
     return new Simple()
   }
 

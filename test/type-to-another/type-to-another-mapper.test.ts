@@ -1,7 +1,6 @@
-import { TypeToAnotherMapper } from "./type-to-another.mapper"
-import { TypeDto } from "./type.dto"
-import { TypeEntity } from "./type.entity"
-
+import { TypeToAnotherMapper } from './type-to-another.mapper'
+import { TypeDto } from './type.dto'
+import { TypeEntity } from './type.entity'
 
 describe('TypeToAnotherMapperTest', () => {
   let mapper: TypeToAnotherMapper
@@ -43,7 +42,10 @@ describe('TypeToAnotherMapperTest', () => {
 
     typeEntity.booleanToString = 'true'
     typeEntity.numToString = '42'
-    typeEntity.dateToString = Intl.DateTimeFormat('Fr-fr', { dateStyle: 'full', timeStyle: 'long' }).format(date)
+    typeEntity.dateToString = Intl.DateTimeFormat('Fr-fr', {
+      dateStyle: 'full',
+      timeStyle: 'long'
+    }).format(date)
     typeEntity.stringToNumber = 18
     typeEntity.booleanToNumber = 0
     typeEntity.anyToNumber = NaN

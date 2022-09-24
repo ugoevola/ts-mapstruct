@@ -1,6 +1,14 @@
 export class InvalidMappingOptionsExceptionMapper extends Error {
-  constructor (mapperClass: string, methodName: string) {
-    super(`InvalidMappingOptionsExceptionMapper: invalid mapping otpions provided for the method ${methodName} of the mapper ${mapperClass}.
-    You must pass at most one of these parameters: source, expression, value for each option.`)
+  private static readonly MESSAGE = `InvalidMappingOptionsExceptionMapper: invalid mapping options
+  provided for the method {} of the mapper {}: {}`
+
+  constructor(mapperClass: string, methodName: string, error: string) {
+    const message = InvalidMappingOptionsExceptionMapper.MESSAGE.replace(
+      '{}',
+      mapperClass
+    )
+      .replace('{}', methodName)
+      .replace('{}', error)
+    super(message)
   }
 }
