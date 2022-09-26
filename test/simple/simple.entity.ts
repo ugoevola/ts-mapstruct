@@ -1,19 +1,17 @@
-import { Expose } from 'class-transformer'
-
 export class Simple {
-  @Expose() private property1: any
-  @Expose() private property2: any
-  @Expose() private property3: any
+  private property1: any
+  private property2: any
+  private property3: any
 
-  getPropety1(): void {
+  getProperty1(): void {
     return this.property1
   }
 
-  getPropety2(): void {
+  getProperty2(): void {
     return this.property2
   }
 
-  getPropety3(): void {
+  getProperty3(): void {
     return this.property3
   }
 

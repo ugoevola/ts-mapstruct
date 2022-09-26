@@ -4,10 +4,11 @@ import {
   getSourceArguments,
   control,
   retrieveMappingTarget,
-  clean
+  clean,
+  exposePropertiesFromGettersOrSetters
 } from '../utils/utils'
 import { SupplierDescriptor } from '../models/supplier-descriptor'
-import { getOptionsMapping } from './get-options-mappings'
+import { getOptionsMapping } from './get-options-functions'
 import { ArgumentDescriptor } from '../models/argument-descriptor'
 import { mapImplicitProperties } from './mapping-for-implicit'
 import { MappingOptions } from '../models/mapping-options'
@@ -21,7 +22,9 @@ export const mapping = <T>(
   mappingOptions: MappingOptions[]
 ): void => {
   control(mapperClass, mappingMethodName, ...mappingOptions)
-  const targetedType: T = descriptor.value.call()
+  const targetedType: T = exposePropertiesFromGettersOrSetters(
+    descriptor.value.call()
+  )
   const sourceNames: string[] = getArgumentNames(descriptor.value.toString())
   const sourceArgs: ArgumentDescriptor[] = getSourceArguments(
     mapperClass,

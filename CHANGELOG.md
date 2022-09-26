@@ -1,3 +1,9 @@
+# [3.1.0](https://github.com/ugoevola/ts-mapstruct/releases/tag/v3.1.0)
+
+### Added
+- You have now 2 solutions to expose properies :
+> - with @Expose decorator of class-transformer
+> - Come back of getters / setters (from v1.0.1). If you define a getter or a setter for a property, it will be exposed.
 # [3.0.3](https://github.com/ugoevola/ts-mapstruct/releases/tag/v3.0.3)
 
 ### Added
@@ -29,6 +35,8 @@ Now, all the selection calculations are done when the mapper is instantiated, an
 - parameters with underscors are now recognized
 # [2.0.0](https://github.com/ugoevola/ts-mapstruct/releases/tag/v2.0.0)
 > **NOTE**: This version is deprecated.
+### Breaking Changed
+- The getters / setters have no more influence to map an object. It is now necessary to expose each attribute.
 ### Added
 - **@BeforeMapping**: perform some actions before the mapping process
 - **@AfterMapping**: perform some actions after the mapping process

@@ -3,15 +3,15 @@ export class SimpleDto {
   private property2: any
   private property3: any
 
-  getPropety1(): void {
+  getProperty1(): void {
     return this.property1
   }
 
-  getPropety2(): void {
+  getProperty2(): void {
     return this.property2
   }
 
-  getPropety3(): void {
+  getProperty3(): void {
     return this.property3
   }
 
