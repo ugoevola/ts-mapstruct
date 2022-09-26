@@ -31,9 +31,6 @@ But it can be used in any typescript project.
 ## Usage
 For the exemple, I will take a **UserMapper** that maps a **UserDto** into **UserEntity**.
 ### Classes
-You must expose the properties of the target class by using an apropriate decorator.<br>
-Otherwise, you will retrieve an empty Object, and probably have MapperExceptions. <br>
-In this example, I'm using @Expose() decorator of the [class-tranformer library](https://www.npmjs.com/package/class-transformer#enforcing-type-safe-instance)
 ```ts
 export class UserDto {
   @Expose() private fname: string;
@@ -79,6 +76,10 @@ export class FriendEntity {
   }
 }
 ```
+> **Note**: You must expose the properties of the target class by using an apropriate decorator.<br>
+> Otherwise, you will retrieve an empty Object, and probably have MapperExceptions. <br>
+> - In this example, I'm using @Expose() decorator of the [class-tranformer library](https://www.npmjs.com/package/class-transformer#enforcing-type-safe-instance)
+> - You can also define well named getters/setters for properties.
 ### Mapper
 
 ```ts
@@ -120,7 +121,8 @@ export class UserMapper {
 ```
 ### Usage
 ```ts
-@Mapper()
+// NestJs (decorate your mapper with @Injectable)
+@Injectable()
 export class UserService {
   constructor(private userMapper: UserMapper) {}
 
@@ -132,6 +134,13 @@ export class UserService {
     return this.userMapper.entitiesFromDtos(userDtos);
   }
 }
+```
+```ts
+// TypeScript
+const userDto = new UserDto()
+//...
+const userMapper = new UserMapper()
+const userEntity = userMapper.entityFromDto(userDto)
 ```
 ### Type conversion
 The TS code is trans-compiled in JS before being executed, so the types of the source objects are kept on the end object.
@@ -156,18 +165,18 @@ The library allows you  to define the targeted type for each property:
 If you have multiple depths in your object, you can target the right property with the right type like this:
 ```ts
 @Mappings(
-    { 
-      target: 'bestFriend',
-      expression: 'getBestFriend(userDto.friends)',
-      type: FriendEntity
-    },
-    { target: 'friends', type: FriendEntity },
-    { target: 'friends.bdate', type: Date },
-    { target: 'bestFriend.bdate', type: Date }
-  )
-  entityFromDto(_userDto: UserDto): UserEntity {
-    return new UserEntity;
-  }
+  { 
+    target: 'bestFriend',
+    expression: 'getBestFriend(userDto.friends)',
+    type: FriendEntity
+  },
+  { target: 'friends', type: FriendEntity },
+  { target: 'friends.bdate', type: Date },
+  { target: 'bestFriend.bdate', type: Date }
+)
+entityFromDto(_userDto: UserDto): UserEntity {
+  return new UserEntity;
+}
 ```
 Below are examples of options that may exist:
 
@@ -270,8 +279,7 @@ export class UserMapper {
 
 }
 ```
-
-Note: if you return object from your @AfterMapping or @BeforeMapping function, it will not be considered.
+> **Note**: if you return object from your @AfterMapping or @BeforeMapping function, it will not be considered.
 
 ### @MappingTarget
 The MappingTarget allows you to pass the resulting object throw the methods to perform some actions on it.
@@ -328,7 +336,7 @@ export class UserMapper {
 
 }
 ```
-> **Notes**: @MappingTarget is not used in the same way depending on the type of method in which it is used:
+> **Note**: @MappingTarget is not used in the same way depending on the type of method in which it is used:
 > - In an @BeforeMapping method, the argument bound to the @MappingTarget decorator must also be found in the mapping method. Otherwise @BeforeMapping will not be invoked.
 > - In an @AfterMapping method, the argument bound to the @MappingTarget does not have to be in the mapping method. However, you must provide the return type of the mapping method for the @AfterMapping method to be invoked.
 
@@ -376,7 +384,9 @@ The thrown exceptions are extends of the HttpException of nestjs/common.
 Injectable()
 export class UserMapper {
   
-  // this will throw a BadExpressionExceptionMapper because the expression for fullName can't be evaluated (unknownMethod does not exist)
+  // this will throw a BadExpressionExceptionMapper
+  // because the expression for fullName
+  // can't be evaluated (unknownMethod does not exist)
   @Mappings(
     { target: 'fullName', expression: 'unknownMethod()' }
   )
@@ -392,7 +402,8 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // This will throw an IllegalArgumentNameExceptionMapper because getConcatProperties is a reserved name used for supplied mapping funcions
+  // This will throw an IllegalArgumentNameExceptionMapper
+  // because getConcatProperties is a reserved name used for supplied mapping funcions
   // All supplied mapping function name are forbidden for naming the arguments.
   // cf. Supplied Mapping Functions
   // this exception is thrown as soon as there is an expression in one provided MappingOptions
@@ -411,7 +422,9 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // this will throw an InvalidMappingOptionsExceptionMapper because you provide multiple sources (value and source) for cn in one MappingOption
+  // this will throw an InvalidMappingOptionsExceptionMapper
+  // because you provide multiple sources (value and source)
+  // for cn in one MappingOption
   @Mappings(
     { target: 'cn', value: 'Ugo', source: 'userDto.fname' }
   )
@@ -427,8 +440,9 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // this will throw an InvalidMappingTargetExceptionMapper because
-  // the provided @MappingTarget object does not have the type of the returned mapping function
+  // this will throw an InvalidMappingTargetExceptionMapper
+  // because the provided @MappingTarget object
+  // does not have the type of the returned mapping function
   @Mappings()
   invalidMappingTargetExceptionMapper (@MappingTarget() _userDto: UserDto): UserEntity {
     return new UserEntity()
@@ -442,7 +456,8 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // this will throw an InvalidSourceExceptionMapper because userDto.unknownProperty does not exist
+  // this will throw an InvalidSourceExceptionMapper
+  // because userDto.unknownProperty does not exist
   @Mappings(
     { target: 'cn', source: 'userDto.unknownProperty' }
   )
@@ -458,7 +473,8 @@ export class UserMapper {
 Injectable()
 export class UserMapper {
   
-  // this will throw an InvalidTargetExceptionMapper because unknown does not exist on UserEntity
+  // this will throw an InvalidTargetExceptionMapper
+  // because unknown does not exist on UserEntity
   @Mappings(
     { target: 'unknown', source: 'userDto.fname' }
   )

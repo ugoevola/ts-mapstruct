@@ -1,10 +1,11 @@
 import {
   ClassConstructor,
   ClassTransformOptions,
+  Expose,
   plainToInstance
 } from 'class-transformer'
 import { validateSync } from 'class-validator'
-import { isNil } from 'lodash'
+import { isNil, lowerFirst } from 'lodash'
 import { IllegalArgumentNameExceptionMapper } from '../exceptions/illegal-argument-name.exception'
 import { InvalidMappingOptionsExceptionMapper } from '../exceptions/invalid-mapping-options.exception'
 import { InvalidMappingTargetExceptionMapper } from '../exceptions/invalid-mapping-target.exception'
@@ -114,4 +115,15 @@ export const clean = <T>(object: T): T => {
     else if (typeof value === 'object') clean(value)
   })
   return object
+}
+
+export const exposePropertiesFromGettersOrSetters = <T>(targetedType: T): T => {
+  Object.getOwnPropertyNames(targetedType.constructor.prototype)
+    .filter(key => key.startsWith('get') || key.startsWith('set'))
+    .map(key => lowerFirst(key.substring(3)))
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .forEach(propertyName => {
+      Expose()(targetedType.constructor, propertyName)
+    })
+  return targetedType
 }
