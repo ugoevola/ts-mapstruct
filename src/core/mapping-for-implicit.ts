@@ -22,7 +22,7 @@ const mapImplicitObject = <T>(
   sourceArg: ArgumentDescriptor,
   targetedObject: T
 ): void => {
-  if (typeof sourceArg.value === 'object') {
+  if (typeof sourceArg.value === 'object' && sourceArg.value !== null) {
     Object.entries(sourceArg.value).forEach(([propertyName, propertyValue]) => {
       if (propertyName in targetedObject)
         targetedObject[propertyName] = propertyValue
