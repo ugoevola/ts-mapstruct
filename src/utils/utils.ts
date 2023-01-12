@@ -112,7 +112,7 @@ export const clean = <T>(object: T): T => {
   Object.entries(object).forEach(([key, value]) => {
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     if (value === undefined) delete object[key]
-    else if (typeof value === 'object') clean(value)
+    else if (typeof value === 'object' && value !== null) clean(value)
   })
   return object
 }
