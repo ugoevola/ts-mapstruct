@@ -72,7 +72,7 @@ export const getSourceArguments = (
   )
 }
 
-export const retrieveMappingTarget = <T>(
+export const retrieveMappingTarget = <T extends object>(
   sourceArgs: ArgumentDescriptor[],
   targetedType: T
 ): T => {
@@ -126,4 +126,44 @@ export const exposePropertiesFromGettersOrSetters = <T>(targetedType: T): T => {
       Expose()(targetedType.constructor, propertyName)
     })
   return targetedType
+}
+
+export const isIterrable = (target: any) => {
+  return !isNil(target?.[Symbol.iterator])
+}
+
+export const getValueFromPath = (
+  target: any,
+  properiesPath: string
+): any => {
+  if (isNil(properiesPath))
+    return target
+  const [targetPropertyName, subPropertiesNames] = properiesPath.split(/\.(.*)/s)
+  return !isIterrable(target) ?
+    getValueFromPath(get(target, targetPropertyName), subPropertiesNames) :
+    [...target.entries()].map(([_key, value]) => getValueFromPath(value, properiesPath))
+}
+
+export const setValueForPath = (
+  target: any,
+  properiesPath: string,
+  value: any
+): void => {
+  if (isNil(properiesPath))
+    return
+  const [targetPropertyName, subPropertiesNames] = properiesPath.split(/\.(.*)/s)
+  if (isNil(target) || !(targetPropertyName in target))
+    throw new InvalidTargetExceptionMapper(targetPropertyName, target)
+  const targetValue = target[targetPropertyName]
+  if (isNil(subPropertiesNames)) {
+    set(target, targetPropertyName, value)
+  } else if (!isIterrable(targetValue)){
+    setValueForPath(targetValue, subPropertiesNames, value)
+  } else if (isIterrable(value)) {
+    (targetValue as any).forEach((element: any, index: number) => {
+      setValueForPath(element, subPropertiesNames, value[index])
+    })
+  } else {
+    throw new InvalidMappingTargetExceptionMapper()
+  }
 }

@@ -1,6 +1,6 @@
 import { BadExpressionExceptionMapper } from '../exceptions/bad-expression.exception'
 import { InvalidSourceExceptionMapper } from '../exceptions/invalid-source.exception'
-import { get, getAllFunctionNames, set, setGlobalVariable } from '../utils/utils'
+import { get, getAllFunctionNames, getValueFromPath, instanciate, isIterrable, set, setGlobalVariable, setValueForPath } from '../utils/utils'
 import { ArgumentDescriptor } from '../models/argument-descriptor'
 import { MappingOptions } from '../models/mapping-options'
 import { convert } from '../utils/converter'
@@ -34,7 +34,7 @@ const fnSource = <T>(
   options: MappingOptions
 ): void => {
   const value = convert(valueFromSource(sourceArgs, options), options)
-  set(targetedObject, options.target, value)
+  setValueForPath(targetedObject, options.target, value)
 }
 
 const fnExpression = <T>(
@@ -89,11 +89,7 @@ const valueFromSource = (
   const sourceValue = sourceArgs.find((sourceArg: ArgumentDescriptor) =>
     sourceArg.nameEquals(sourceName)
   ).value
-  return isNil(sourceProperties)
-    ? sourceValue
-    : sourceProperties
-        .split('.')
-        .reduce((pre, value) => get(pre, value), sourceValue)
+  return getValueFromPath(sourceValue, sourceProperties)
 }
 
 const valueFromExpression = (
@@ -137,3 +133,7 @@ const cleanGlobalsVariables = (
       setGlobalVariable(key, undefined)
   })
 }
+function exposePropertiesFromGettersOrSetters(sourceValue: any): any {
+  throw new Error('Function not implemented.')
+}
+

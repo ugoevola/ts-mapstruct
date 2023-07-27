@@ -15,7 +15,7 @@ import { MappingOptions } from '../models/mapping-options'
 import { getBeforeSuppliers } from './get-before-suppliers'
 import { getAfterSuppliers } from './get-after-suppliers'
 
-export const mapping = <T>(
+export const mapping = <T extends object>(
   mapperClass: any,
   mappingMethodName: string,
   descriptor: PropertyDescriptor,

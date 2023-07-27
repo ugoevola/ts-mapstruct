@@ -11,7 +11,7 @@ export const convert = (targetedValue: any, options: MappingOptions): any => {
   if (options.type === 'boolean') return String(targetedValue) === 'true'
   if (options.type === 'date') return new Date(targetedValue)
   if (typeof options.type === 'function')
-    return plainToInstance(options.type as ClassConstructor<any>, targetedValue)
+    return plainToInstance(options.type as ClassConstructor<any>, targetedValue, { excludeExtraneousValues: true })
 }
 
 const dateToString = (targetedValue: Date, options: MappingOptions): string => {
